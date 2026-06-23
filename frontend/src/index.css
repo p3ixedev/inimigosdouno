@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #14141c;
+    color: #f5f7fa;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+@layer base {
+  :root {
+        --background: 240 18% 10%;
+        --foreground: 240 10% 96%;
+        --card: 240 14% 16%;
+        --card-foreground: 240 10% 96%;
+        --popover: 240 14% 16%;
+        --popover-foreground: 240 10% 96%;
+        --primary: 8 75% 55%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 240 14% 20%;
+        --secondary-foreground: 240 10% 96%;
+        --muted: 240 14% 22%;
+        --muted-foreground: 240 8% 70%;
+        --accent: 240 14% 24%;
+        --accent-foreground: 240 10% 96%;
+        --destructive: 8 75% 55%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 240 10% 25%;
+        --input: 240 14% 20%;
+        --ring: 8 75% 55%;
+        --radius: 0.875rem;
+    }
+  .dark {
+        --background: 240 18% 10%;
+        --foreground: 240 10% 96%;
+        --card: 240 14% 16%;
+        --card-foreground: 240 10% 96%;
+        --popover: 240 14% 16%;
+        --popover-foreground: 240 10% 96%;
+        --primary: 8 75% 55%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 240 14% 20%;
+        --secondary-foreground: 240 10% 96%;
+        --muted: 240 14% 22%;
+        --muted-foreground: 240 8% 70%;
+        --accent: 240 14% 24%;
+        --accent-foreground: 240 10% 96%;
+        --destructive: 8 75% 55%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 240 10% 25%;
+        --input: 240 14% 20%;
+        --ring: 8 75% 55%;
+    }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}
