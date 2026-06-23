@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ResponsiveContainer,
@@ -17,7 +18,10 @@ import {
   History,
   ChevronDown,
   Trash2,
+  User,
+  LogOut,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Button } from '../components/ui/button';
@@ -42,6 +46,8 @@ function useIsDesktop() {
 
 export default function Home() {
   const isDesktop = useIsDesktop();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -174,6 +180,27 @@ export default function Home() {
     <div className="uno-bg relative">
       <FloatingCards />
       <main className="relative z-10 mx-auto max-w-5xl px-3 pb-16 pt-6 sm:px-4 sm:pb-24 sm:pt-12">
+
+        {/* ===== NAVBAR ===== */}
+        {user && (
+          <div className="mb-4 flex items-center justify-end gap-2">
+            <button
+              onClick={() => navigate('/perfil')}
+              className="flex items-center gap-2 rounded-xl bg-[oklch(0.22_0.035_265)]/60 px-3 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 transition hover:ring-white/25"
+            >
+              <User className="h-3.5 w-3.5" />
+              <span translate="no">{user.name}</span>
+            </button>
+            <button
+              onClick={() => { logout(); navigate('/login'); }}
+              className="flex items-center gap-1.5 rounded-xl bg-[oklch(0.22_0.035_265)]/60 px-3 py-2 text-xs text-zinc-400 ring-1 ring-white/10 transition hover:text-[oklch(0.78_0.2_27)] hover:ring-white/25"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Sair
+            </button>
+          </div>
+        )}
+
         {/* ===== HERO ===== */}
         <motion.header
           initial={{ opacity: 0, y: -20 }}
