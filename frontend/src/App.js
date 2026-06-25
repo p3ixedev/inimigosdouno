@@ -5,6 +5,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import EscolherPerfil from './pages/EscolherPerfil';
 import Perfil from './pages/Perfil';
+import Jogo from './pages/Jogo';
+import Mesa from './pages/Mesa';
 
 function RotaProtegida({ children }) {
   const { user } = useAuth();
@@ -29,6 +31,22 @@ function AppRoutes() {
         element={
           <RotaProtegida>
             <Perfil />
+          </RotaProtegida>
+        }
+      />
+      <Route
+        path="/jogo"
+        element={
+          <RotaProtegida>
+            <Jogo />
+          </RotaProtegida>
+        }
+      />
+      <Route
+        path="/jogo/:codigo"
+        element={
+          <RotaProtegida>
+            <Mesa />
           </RotaProtegida>
         }
       />

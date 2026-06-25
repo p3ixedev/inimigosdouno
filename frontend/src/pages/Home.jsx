@@ -185,6 +185,12 @@ export default function Home() {
         {user && (
           <div className="mb-4 flex items-center justify-end gap-2">
             <button
+              onClick={() => navigate('/jogo')}
+              className="flex items-center gap-2 rounded-xl bg-[oklch(0.63_0.24_27)] px-3 py-2 text-xs font-bold text-white ring-1 ring-[oklch(0.63_0.24_27)] transition hover:bg-[oklch(0.68_0.24_27)] uppercase tracking-wider"
+            >
+              🎮 Jogar
+            </button>
+            <button
               onClick={() => navigate('/perfil')}
               className="flex items-center gap-2 rounded-xl bg-[oklch(0.22_0.035_265)]/60 px-3 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 transition hover:ring-white/25"
             >
@@ -192,7 +198,7 @@ export default function Home() {
               <span translate="no">{user.name}</span>
             </button>
             <button
-              onClick={() => { logout(); navigate('/login'); }}
+              onClick={() => { logout(); navigate('/entrar'); }}
               className="flex items-center gap-1.5 rounded-xl bg-[oklch(0.22_0.035_265)]/60 px-3 py-2 text-xs text-zinc-400 ring-1 ring-white/10 transition hover:text-[oklch(0.78_0.2_27)] hover:ring-white/25"
             >
               <LogOut className="h-3.5 w-3.5" />
