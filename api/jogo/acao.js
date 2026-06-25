@@ -7,7 +7,7 @@ const {
   escolherCor,
   acaoZero,
   declararUno,
-} = require('../../frontend/src/api/jogoLogica');
+} = require('./jogoLogica');
 
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID,
