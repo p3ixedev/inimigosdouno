@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
 
-const CREDENTIALS = [
-  { id: 'emanuel',  name: 'Emanuel',  color: 'green',  email: 'emanuel@uno.com',  senha: 'emanuel123'  },
-  { id: 'jacyane',  name: 'Jaciany',  color: 'white',  email: 'jaciany@uno.com',  senha: 'jaciany123'  },
-  { id: 'mayara',   name: 'Mayara',   color: 'yellow', email: 'mayara@uno.com',   senha: 'mayara123'   },
-  { id: 'renan',    name: 'Renan',    color: 'red',    email: 'renan@uno.com',    senha: 'renan123'    },
-  { id: 'stephane', name: 'Stephane', color: 'blue',   email: 'stephane@uno.com', senha: 'stephane123' },
+export const PROFILES = [
+  { id: 'emanuel',  name: 'Emanuel',  color: 'green'  },
+  { id: 'jacyane',  name: 'Jaciany',  color: 'white'  },
+  { id: 'mayara',   name: 'Mayara',   color: 'yellow' },
+  { id: 'renan',    name: 'Renan',    color: 'red'    },
+  { id: 'stephane', name: 'Stephane', color: 'blue'   },
 ];
 
 const AuthContext = createContext(null);
@@ -20,15 +20,9 @@ export function AuthProvider({ children }) {
     }
   });
 
-  function login(email, senha) {
-    const found = CREDENTIALS.find(
-      (c) => c.email.toLowerCase() === email.toLowerCase() && c.senha === senha
-    );
-    if (!found) return false;
-    const { senha: _, ...safeUser } = found;
-    setUser(safeUser);
-    sessionStorage.setItem('uno_user', JSON.stringify(safeUser));
-    return true;
+  function escolherPerfil(profile) {
+    setUser(profile);
+    sessionStorage.setItem('uno_user', JSON.stringify(profile));
   }
 
   function logout() {
@@ -37,7 +31,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, escolherPerfil, logout }}>
       {children}
     </AuthContext.Provider>
   );

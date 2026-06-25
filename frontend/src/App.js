@@ -3,19 +3,19 @@ import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/Home';
-import Login from './pages/Login';
+import EscolherPerfil from './pages/EscolherPerfil';
 import Perfil from './pages/Perfil';
 
 function RotaProtegida({ children }) {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/entrar" replace />;
   return children;
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/entrar" element={<EscolherPerfil />} />
       <Route
         path="/"
         element={
