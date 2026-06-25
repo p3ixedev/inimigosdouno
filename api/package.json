@@ -4,6 +4,7 @@
   "description": "Vercel serverless functions for Inimigos do Uno",
   "private": true,
   "dependencies": {
-    "mongodb": "^6.10.0"
+    "mongodb": "^6.10.0",
+    "pusher": "^5.2.0"
   }
 }
