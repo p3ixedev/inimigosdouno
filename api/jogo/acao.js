@@ -98,6 +98,22 @@ module.exports = async (req, res) => {
         break;
       }
 
+      case 'passar': {
+        // Passa a vez apos comprar carta que nao pode jogar
+        if (novoEstado.turnoAtual !== jogadorId) return res.status(400).json({ error: 'Nao e sua vez!' });
+        novoEstado = {
+          ...novoEstado,
+          turnoAtual: novoEstado.jogadores[
+            (novoEstado.jogadores.indexOf(jogadorId) + (novoEstado.ordem === 'normal' ? 1 : -1) + novoEstado.jogadores.length) % novoEstado.jogadores.length
+          ],
+          cartaCompradaJogavel: null,
+        };
+        await salas.updateOne({ codigo: codigo.toUpperCase() }, { $set: { estado: novoEstado } });
+        evento = 'estado-atualizado';
+        payload = { estado: novoEstado };
+        break;
+      }
+
       case 'uno': {
         novoEstado = declararUno(novoEstado, jogadorId);
         await salas.updateOne({ codigo: codigo.toUpperCase() }, { $set: { estado: novoEstado } });

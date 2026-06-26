@@ -245,6 +245,26 @@ function comprarCarta(estado, jogadorId) {
   const n = estado.acumulado > 0 ? estado.acumulado : 1;
   const { compradas, baralho, pilha } = comprarCartas(n, estado.baralho, estado.pilha);
   const novaMao = [...estado.maos[jogadorId], ...compradas];
+  const topo = pilha[pilha.length - 1];
+
+  // Se comprou por acumulo (+2/+4), passa a vez direto
+  if (estado.acumulado > 0) {
+    return {
+      ...estado,
+      maos: { ...estado.maos, [jogadorId]: novaMao },
+      baralho,
+      pilha,
+      acumulado: 0,
+      fase: 'jogando',
+      turnoAtual: proximoJogador(estado.jogadores, jogadorId, estado.ordem),
+      cartaCompradaJogavel: null,
+    };
+  }
+
+  // Comprou 1 carta - verifica se pode jogar
+  const cartaComprada = compradas[0];
+  const podeJogar = cartaComprada && podePagar(cartaComprada, topo, estado.corAtual, 0);
+
   return {
     ...estado,
     maos: { ...estado.maos, [jogadorId]: novaMao },
@@ -252,7 +272,9 @@ function comprarCarta(estado, jogadorId) {
     pilha,
     acumulado: 0,
     fase: 'jogando',
-    turnoAtual: proximoJogador(estado.jogadores, jogadorId, estado.ordem),
+    // Se pode jogar, mantem a vez; senao passa
+    turnoAtual: podeJogar ? jogadorId : proximoJogador(estado.jogadores, jogadorId, estado.ordem),
+    cartaCompradaJogavel: podeJogar ? cartaComprada : null,
   };
 }
 
