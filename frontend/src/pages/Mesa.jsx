@@ -48,14 +48,36 @@ const COR_ESCURO = {
   amarelo: 'oklch(0.52 0.14 90)',
 };
 
+const BLOQUEIO_SVG = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="w-full h-full">
+    <circle cx="12" cy="12" r="9" />
+    <line x1="5" y1="19" x2="19" y2="5" />
+  </svg>
+);
+
+const REVERSO_SVG = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
+    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+    <path d="M21 3v5h-5" />
+    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+    <path d="M8 16H3v5" />
+  </svg>
+);
+
 function getLabelCarta(carta) {
   if (carta.tipo === 'numero') return String(carta.valor);
   if (carta.valor === '+2') return '+2';
   if (carta.valor === '+4') return '+4';
-  if (carta.valor === 'bloqueio') return 'X';
-  if (carta.valor === 'reverso') return 'R';
+  if (carta.valor === 'bloqueio') return 'BLOCK';
+  if (carta.valor === 'reverso') return 'REV';
   if (carta.valor === 'coringa') return '*';
   return carta.valor;
+}
+
+function getIconCarta(carta) {
+  if (carta.valor === 'bloqueio') return BLOQUEIO_SVG;
+  if (carta.valor === 'reverso') return REVERSO_SVG;
+  return null;
 }
 
 function getSubLabelCarta(carta) {
@@ -73,7 +95,7 @@ function CartaMao({ carta, selecionada, onClick, disabled, destaque }) {
   const corObj = carta.cor ? COR[carta.cor] : null;
   const bgClass = corObj ? corObj.bg : 'bg-gradient-to-br from-zinc-700 to-zinc-900';
   const label = getLabelCarta(carta);
-  const subLabel = getSubLabelCarta(carta);
+  const icon = getIconCarta(carta);
   const corEscuro = carta.cor ? COR_ESCURO[carta.cor] : '#1a1a2e';
 
   return (
@@ -104,14 +126,15 @@ function CartaMao({ carta, selecionada, onClick, disabled, destaque }) {
         {label}
       </div>
 
-      {/* Label central grande */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-white font-black leading-none drop-shadow-lg" style={{ fontSize: isEspecial ? '20px' : '24px', textShadow: '0 2px 6px rgba(0,0,0,0.5)' }}>
-          {label}
-        </span>
-        {subLabel && (
-          <span className="text-white/70 font-bold mt-0.5" style={{ fontSize: '6px', letterSpacing: '0.1em' }}>
-            {subLabel}
+      {/* Label/icone central */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
+        {icon ? (
+          <span className="text-white block w-7 h-7 sm:w-8 sm:h-8" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}>
+            {icon}
+          </span>
+        ) : (
+          <span className="text-white font-black leading-none drop-shadow-lg" style={{ fontSize: isEspecial ? '20px' : '24px', textShadow: '0 2px 6px rgba(0,0,0,0.5)' }}>
+            {label}
           </span>
         )}
       </div>
@@ -134,7 +157,7 @@ function CartaTopo({ carta, corAtual }) {
   const bgClass = corObj ? corObj.bg : 'bg-zinc-700';
   const glowClass = corAtual && COR[corAtual] ? COR[corAtual].glow : '';
   const label = getLabelCarta(carta);
-  const subLabel = getSubLabelCarta(carta);
+  const icon = getIconCarta(carta);
   const corEscuro = carta.cor ? COR_ESCURO[carta.cor] : (corAtual ? COR_ESCURO[corAtual] : '#1a1a2e');
 
   return (
@@ -156,14 +179,15 @@ function CartaTopo({ carta, corAtual }) {
         {label}
       </div>
 
-      {/* Label central */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-white font-black leading-none drop-shadow-xl" style={{ fontSize: '36px', textShadow: '0 3px 10px rgba(0,0,0,0.6)' }}>
-          {label}
-        </span>
-        {subLabel && (
-          <span className="text-white/70 font-bold mt-1" style={{ fontSize: '8px', letterSpacing: '0.12em' }}>
-            {subLabel}
+      {/* Label/icone central */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center p-3">
+        {icon ? (
+          <span className="text-white block w-10 h-10 sm:w-12 sm:h-12" style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.6))' }}>
+            {icon}
+          </span>
+        ) : (
+          <span className="text-white font-black leading-none drop-shadow-xl" style={{ fontSize: '36px', textShadow: '0 3px 10px rgba(0,0,0,0.6)' }}>
+            {label}
           </span>
         )}
       </div>
