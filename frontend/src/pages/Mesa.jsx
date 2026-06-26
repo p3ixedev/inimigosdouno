@@ -52,9 +52,9 @@ function getLabelCarta(carta) {
   if (carta.tipo === 'numero') return String(carta.valor);
   if (carta.valor === '+2') return '+2';
   if (carta.valor === '+4') return '+4';
-  if (carta.valor === 'bloqueio') return '⊘';
-  if (carta.valor === 'reverso') return '↺';
-  if (carta.valor === 'coringa') return '★';
+  if (carta.valor === 'bloqueio') return 'X';
+  if (carta.valor === 'reverso') return 'R';
+  if (carta.valor === 'coringa') return '*';
   return carta.valor;
 }
 
@@ -287,7 +287,7 @@ export default function Mesa() {
       setEstado(e);
       const p = pById(jogadorId);
       setUnoAnim(jogadorId);
-      mostrarNotif(`${p?.name} gritou UNO! 🎉`, 'uno');
+      mostrarNotif(`${p?.name} gritou UNO! `, 'uno');
       setTimeout(() => setUnoAnim(null), 2500);
     });
 
@@ -380,7 +380,7 @@ export default function Mesa() {
     return (
       <div className="uno-bg min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl mb-3 animate-pulse">🃏</div>
+          <div className="text-4xl mb-3 animate-pulse"></div>
           <p className="text-zinc-400">Entrando na sala...</p>
         </div>
       </div>
@@ -390,7 +390,7 @@ export default function Mesa() {
   if (erro && !sala) {
     return (
       <div className="uno-bg min-h-screen flex flex-col items-center justify-center gap-4 px-4">
-        <div className="text-5xl">😵</div>
+        <div className="text-5xl"></div>
         <p className="text-[oklch(0.85_0.18_27)] text-center">{erro}</p>
         <button onClick={() => navigate('/jogo')} className="text-zinc-400 hover:text-white text-sm underline">
           Voltar ao lobby
@@ -416,7 +416,7 @@ export default function Mesa() {
             transition={{ delay: 0.5, duration: 0.8 }}
             className="text-7xl mb-4"
           >
-            🏆
+            
           </motion.div>
           <p className="text-zinc-400 text-xs uppercase tracking-widest mb-2">Vencedor</p>
           <div className="flex justify-center mb-3">
@@ -458,7 +458,7 @@ export default function Mesa() {
           <div className="text-center mb-6">
             <p className="text-xs text-zinc-400 uppercase tracking-widest mb-2">Código da sala</p>
             <h2 className="font-display text-6xl tracking-[0.4em] text-[oklch(0.86_0.17_85)]">{codigo}</h2>
-            <p className="text-xs text-zinc-500 mt-2">📲 Manda esse código pros amigos!</p>
+            <p className="text-xs text-zinc-500 mt-2"> Manda esse código pros amigos!</p>
           </div>
 
           <div className="space-y-2 mb-6">
@@ -481,11 +481,11 @@ export default function Mesa() {
               disabled={(sala?.jogadores?.length || 0) < 2}
               className="w-full rounded-2xl bg-[oklch(0.63_0.24_27)] py-3.5 text-sm font-bold uppercase tracking-wider text-white disabled:opacity-40 hover:bg-[oklch(0.68_0.24_27)] transition shadow-[0_8px_24px_oklch(0.63_0.24_27/0.4)]"
             >
-              {(sala?.jogadores?.length || 0) < 2 ? '⏳ Aguardando jogadores...' : '🎮 Iniciar jogo!'}
+              {(sala?.jogadores?.length || 0) < 2 ? ' Aguardando jogadores...' : ' Iniciar jogo!'}
             </button>
           ) : (
             <p className="text-center text-sm text-zinc-400 animate-pulse py-2">
-              ⏳ Aguardando o criador iniciar...
+               Aguardando o criador iniciar...
             </p>
           )}
           {erro && <p className="mt-3 text-sm text-[oklch(0.85_0.18_27)] text-center">{erro}</p>}
@@ -568,24 +568,24 @@ export default function Mesa() {
             className="fixed inset-0 z-40 flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
             <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
               className="uno-card-surface rounded-3xl p-6 w-full max-w-xs text-center">
-              <div className="text-4xl mb-2">0️⃣</div>
+              <div className="text-4xl mb-2">0</div>
               <p className="font-display text-2xl mb-1">Carta Zero!</p>
               <p className="text-sm text-zinc-400 mb-5">Escolha uma ação:</p>
               {!alvoZero ? (
                 <div className="flex gap-3">
                   <button onClick={() => setAlvoZero('ver')}
                     className="flex-1 rounded-2xl bg-[oklch(0.6_0.22_255)] py-4 text-white font-bold text-sm hover:opacity-90 transition">
-                    👁 Ver cartas
+                     Ver cartas
                   </button>
                   <button onClick={() => setAlvoZero('trocar')}
                     className="flex-1 rounded-2xl bg-[oklch(0.63_0.24_27)] py-4 text-white font-bold text-sm hover:opacity-90 transition">
-                    🔀 Trocar mão
+                     Trocar mão
                   </button>
                 </div>
               ) : (
                 <div>
                   <p className="text-sm text-zinc-400 mb-3">
-                    {alvoZero === 'ver' ? '👁 Ver cartas de quem?' : '🔀 Trocar mão com quem?'}
+                    {alvoZero === 'ver' ? ' Ver cartas de quem?' : ' Trocar mão com quem?'}
                   </p>
                   <div className="space-y-2">
                     {estado.jogadores.filter((id) => id !== user.id).map((id) => {
@@ -633,7 +633,206 @@ export default function Mesa() {
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold truncate" translate="no">{p?.name}</p>
                     {ehVez && (
-                      <p className="text-[10px] font-bold text-[oklch(0.86_0.17_85)] animate-pulse">vez dele ✨</p>
+                      <p className="text-[10px] font-bold text-[oklch(0.86_0.17_85)] animate-pulse">vez dele </p>
                     )}
                   </div>
                   {temUno && (
+                    <span className="text-[10px] font-black text-[oklch(0.86_0.17_85)] bg-[oklch(0.86_0.17_85)]/10 px-1.5 py-0.5 rounded-full">UNO</span>
+                  )}
+                </div>
+                <CartaVerso count={mao.length} />
+                <p className="text-[10px] text-zinc-500 text-center">{mao.length} carta{mao.length !== 1 ? 's' : ''}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Mesa central */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 py-2">
+
+          {/* Indicador de cor atual */}
+          {estado.corAtual && (
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${corAtualObj?.bg || ''} shadow-lg`}>
+              <div className="w-2 h-2 rounded-full bg-white/80" />
+              <span className="text-white text-xs font-bold uppercase tracking-wider">{COR_LABEL[estado.corAtual]}</span>
+            </div>
+          )}
+
+          <div className="flex items-center gap-5 sm:gap-8">
+            {/* Baralho */}
+            <div className="flex flex-col items-center gap-1">
+              <motion.button
+                whileTap={ehMinhVez ? { scale: 0.92, rotate: -5 } : {}}
+                onClick={ehMinhVez && !cartaCompradaJogavel ? comprar : undefined}
+                className={`relative flex items-center justify-center rounded-2xl border-2 border-white/20 w-16 h-22 sm:w-20 sm:h-28 transition-all ${
+                  ehMinhVez && !cartaCompradaJogavel
+                    ? 'cursor-pointer hover:border-white/60 hover:shadow-[0_0_20px_white/20] bg-gradient-to-br from-[oklch(0.25_0.05_265)] to-[oklch(0.15_0.03_265)]'
+                    : 'cursor-not-allowed opacity-50 bg-gradient-to-br from-[oklch(0.2_0.04_265)] to-[oklch(0.12_0.02_265)]'
+                }`}
+                style={{ height: '88px' }}
+              >
+                {/* Padrão no verso */}
+                <div className="absolute inset-2 rounded-xl bg-[oklch(0.63_0.24_27)]/30 border border-[oklch(0.63_0.24_27)]/40" />
+                <span className="relative font-display text-white text-base tracking-wider z-10">UNO</span>
+                {estado.acumulado > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-2.5 -right-2.5 bg-[oklch(0.63_0.24_27)] text-white text-xs font-black rounded-full w-7 h-7 flex items-center justify-center shadow-lg ring-2 ring-[oklch(0.14_0.03_265)]"
+                  >
+                    +{estado.acumulado}
+                  </motion.span>
+                )}
+              </motion.button>
+              {ehMinhVez && !cartaCompradaJogavel && <p className="text-[10px] text-zinc-500">comprar</p>}
+            </div>
+
+            {/* Topo da pilha */}
+            <div className="flex flex-col items-center gap-1">
+              <CartaTopo carta={topo} corAtual={estado.corAtual} />
+              <p className="text-[10px] text-zinc-500">pilha</p>
+            </div>
+          </div>
+
+          {/* Info do turno */}
+          <div className="text-center">
+            {ehMinhVez ? (
+              <motion.p
+                animate={{ opacity: [1, 0.5, 1] }}
+                transition={{ repeat: Infinity, duration: 1.2 }}
+                className="text-sm font-bold text-[oklch(0.86_0.17_85)]"
+              >
+                 Sua vez!
+              </motion.p>
+            ) : (
+              <p className="text-sm text-zinc-400">
+                Vez de <span className="text-white font-bold" translate="no">{pById(estado.turnoAtual)?.name}</span>
+              </p>
+            )}
+            {estado.acumulado > 0 && (
+              <motion.p
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                className="text-xs font-bold text-[oklch(0.85_0.18_27)] mt-1 bg-[oklch(0.63_0.24_27)]/15 px-3 py-1 rounded-full inline-block"
+              >
+                 Acumulado: +{estado.acumulado} cartas!
+              </motion.p>
+            )}
+          </div>
+
+          {/* Ação do 0 */}
+          {ehMinhVez && estado.fase === 'acaoZero' && (
+            <motion.button
+              initial={{ scale: 0 }} animate={{ scale: 1 }}
+              onClick={() => setModal('acaoZero')}
+              className="rounded-2xl bg-[oklch(0.85_0.18_90)] px-5 py-2.5 text-sm font-bold text-zinc-900 shadow-lg hover:opacity-90 transition"
+            >
+              0 Escolher ação da carta 0
+            </motion.button>
+          )}
+
+          {/* Carta comprada jogável */}
+          {ehMinhVez && cartaCompradaJogavel && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center gap-3"
+            >
+              <p className="text-xs font-bold text-[oklch(0.86_0.17_85)] animate-pulse">
+                 Carta comprada pode ser jogada!
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setCartasSelecionadas([cartaCompradaJogavel]);
+                    setCartaCompradaJogavel(null);
+                  }}
+                  className="rounded-2xl bg-[oklch(0.68_0.2_152)] px-4 py-2.5 text-sm font-bold text-white hover:opacity-90 transition shadow-lg"
+                >
+                   Jogar carta
+                </button>
+                <button
+                  onClick={passarVez}
+                  className="rounded-2xl bg-zinc-700 px-4 py-2.5 text-sm font-bold text-zinc-300 hover:bg-zinc-600 transition"
+                >
+                   Passar vez
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Minha mão */}
+        <div className="uno-card-surface rounded-3xl p-3 sm:p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              {user && pById(user.id) && (
+                <UnoChip color={pById(user.id).color} label={user.name[0]} sm />
+              )}
+              <span className="text-sm font-semibold" translate="no">{user?.name}</span>
+              <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full">{minhaMao.length}</span>
+            </div>
+            <div className="flex gap-2">
+              {minhaMao.length === 1 && (
+                <motion.button
+                  initial={{ scale: 0 }} animate={{ scale: 1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={declararUno}
+                  className="rounded-xl bg-[oklch(0.86_0.17_85)] px-4 py-1.5 text-xs font-black text-zinc-900 uppercase tracking-wider shadow-[0_4px_15px_oklch(0.86_0.17_85/0.5)] hover:opacity-90 transition"
+                >
+                  UNO! 
+                </motion.button>
+              )}
+              {cartasSelecionadas.length > 0 && ehMinhVez && (
+                <motion.button
+                  initial={{ scale: 0 }} animate={{ scale: 1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={jogar}
+                  className="rounded-xl bg-[oklch(0.63_0.24_27)] px-4 py-1.5 text-xs font-bold text-white uppercase tracking-wider hover:bg-[oklch(0.68_0.24_27)] transition shadow-lg"
+                >
+                  Jogar {cartasSelecionadas.length > 1 ? `(${cartasSelecionadas.length})` : '▶'}
+                </motion.button>
+              )}
+            </div>
+          </div>
+
+          {/* Cartas */}
+          <div className="flex gap-1 sm:gap-1.5 overflow-x-auto pb-2 pt-1 flex-wrap">
+            <AnimatePresence>
+              {minhaMao.map((carta) => {
+                const eSelecionada = cartasSelecionadas.some((c) => c.id === carta.id);
+                const eDestaque = cartaCompradaJogavel?.id === carta.id;
+                return (
+                  <motion.div
+                    key={carta.id}
+                    layout
+                    initial={{ scale: 0, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0, opacity: 0, y: -20 }}
+                    transition={{ type: 'spring', stiffness: 200 }}
+                  >
+                    <CartaMao
+                      carta={carta}
+                      selecionada={eSelecionada}
+                      destaque={eDestaque}
+                      onClick={() => ehMinhVez && toggleCarta(carta)}
+                      disabled={!ehMinhVez}
+                    />
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+
+          {erro && (
+            <motion.p
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="mt-2 text-xs text-[oklch(0.85_0.18_27)] text-center bg-[oklch(0.63_0.24_27)]/10 px-3 py-1.5 rounded-xl"
+            >
+               {erro}
+            </motion.p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
