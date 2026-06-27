@@ -683,9 +683,9 @@ export default function Mesa() {
             <div className="flex flex-col items-center gap-1">
               <motion.button
                 whileTap={ehMinhVez ? { scale: 0.92, rotate: -5 } : {}}
-                onClick={ehMinhVez && !cartaCompradaJogavel ? comprar : undefined}
+                onClick={ehMinhVez ? comprar : undefined}
                 className={`relative flex items-center justify-center rounded-2xl border-2 border-white/20 w-16 h-22 sm:w-20 sm:h-28 transition-all ${
-                  ehMinhVez && !cartaCompradaJogavel
+                  ehMinhVez
                     ? 'cursor-pointer hover:border-white/60 hover:shadow-[0_0_20px_white/20] bg-gradient-to-br from-[oklch(0.25_0.05_265)] to-[oklch(0.15_0.03_265)]'
                     : 'cursor-not-allowed opacity-50 bg-gradient-to-br from-[oklch(0.2_0.04_265)] to-[oklch(0.12_0.02_265)]'
                 }`}
@@ -704,7 +704,7 @@ export default function Mesa() {
                   </motion.span>
                 )}
               </motion.button>
-              {ehMinhVez && !cartaCompradaJogavel && <p className="text-[10px] text-zinc-500">comprar</p>}
+              {ehMinhVez && <p className="text-[10px] text-zinc-500">comprar</p>}
             </div>
 
             {/* Topo da pilha */}
@@ -751,33 +751,6 @@ export default function Mesa() {
             </motion.button>
           )}
 
-          {/* Carta comprada jogável */}
-          {ehMinhVez && cartaCompradaJogavel && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center gap-3"
-            >
-              <p className="text-xs font-bold text-[oklch(0.86_0.17_85)] animate-pulse">
-                 Carta comprada pode ser jogada!
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setCartasSelecionadas([cartaCompradaJogavel]);
-                                  }}
-                  className="rounded-2xl bg-[oklch(0.68_0.2_152)] px-4 py-2.5 text-sm font-bold text-white hover:opacity-90 transition shadow-lg"
-                >
-                   Jogar carta
-                </button>
-                <button
-                  onClick={passarVez}
-                  className="rounded-2xl bg-zinc-700 px-4 py-2.5 text-sm font-bold text-zinc-300 hover:bg-zinc-600 transition"
-                >
-                   Passar vez
-                </button>
-              </div>
-            </motion.div>
-          )}
         </div>
 
         {/* Minha mão */}
@@ -819,7 +792,6 @@ export default function Mesa() {
             <AnimatePresence>
               {minhaMao.map((carta) => {
                 const eSelecionada = cartasSelecionadas.some((c) => c.id === carta.id);
-                const eDestaque = cartaCompradaJogavel?.id === carta.id;
                 return (
                   <motion.div
                     key={carta.id}
