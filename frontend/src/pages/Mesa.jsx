@@ -134,7 +134,7 @@ function CartaMao({ carta, selecionada, onClick, disabled }) {
         style={{ background: corEscuro, transform: 'rotate(-20deg)', borderRadius: '50% / 60%' }}
       />
 
-      {/* Número/símbolo mini — canto superior esquerdo */}
+      {/* Número/símbolo mini - canto superior esquerdo */}
       <div className="absolute top-0.5 left-1 text-white font-black leading-none" style={{ fontSize: '9px', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
         {label}
       </div>
@@ -152,7 +152,7 @@ function CartaMao({ carta, selecionada, onClick, disabled }) {
         )}
       </div>
 
-      {/* Número/símbolo mini — canto inferior direito (invertido) */}
+      {/* Número/símbolo mini - canto inferior direito (invertido) */}
       <div className="absolute bottom-0.5 right-1 text-white font-black leading-none rotate-180" style={{ fontSize: '9px', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
         {label}
       </div>
@@ -637,3 +637,202 @@ export default function Mesa() {
                   <div className="space-y-2">
                     {estado.jogadores.filter((id) => id !== user.id).map((id) => {
                       const p = pById(id);
+                      return (
+                        <button key={id} onClick={() => confirmarAcaoZero(alvoZero, id)}
+                          className="w-full flex items-center gap-3 rounded-2xl bg-[oklch(0.22_0.035_265)]/60 px-4 py-3 hover:bg-[oklch(0.28_0.04_265)] transition ring-1 ring-white/10">
+                          {p && <UnoChip color={p.color} label={p.name[0]} sm />}
+                          <span className="font-semibold" translate="no">{p?.name}</span>
+                          <ChevronRight className="h-4 w-4 text-zinc-500 ml-auto" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button onClick={() => setAlvoZero(null)} className="mt-4 text-xs text-zinc-500 hover:text-zinc-300">
+                    &lt; Voltar
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="relative z-10 flex flex-col min-h-screen p-2 sm:p-3 gap-2">
+
+        {/* Outros jogadores */}
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {estado.jogadores.filter((id) => id !== user.id).map((id) => {
+            const p = pById(id);
+            const mao = estado.maos[id] || [];
+            const ehVez = estado.turnoAtual === id;
+            const temUno = estado.unoDeclarado?.[id];
+            return (
+              <motion.div
+                key={id}
+                animate={ehVez ? { scale: [1, 1.02, 1] } : { scale: 1 }}
+                transition={{ repeat: ehVez ? Infinity : 0, duration: 1.5 }}
+                className={`uno-card-surface rounded-2xl p-3 flex flex-col gap-2 transition-all ${
+                  ehVez ? 'ring-2 ring-[oklch(0.86_0.17_85)] shadow-[0_0_20px_oklch(0.86_0.17_85/0.3)]' : 'ring-1 ring-white/5'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {p && <UnoChip color={p.color} label={p.name[0]} sm />}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold truncate" translate="no">{p?.name}</p>
+                    {ehVez && (
+                      <p className="text-[10px] font-bold text-[oklch(0.86_0.17_85)] animate-pulse">vez dele </p>
+                    )}
+                  </div>
+                  {temUno && (
+                    <span className="text-[10px] font-black text-[oklch(0.86_0.17_85)] bg-[oklch(0.86_0.17_85)]/10 px-1.5 py-0.5 rounded-full">UNO</span>
+                  )}
+                </div>
+                <CartaVerso count={mao.length} />
+                <p className="text-[10px] text-zinc-500 text-center">{mao.length} carta{mao.length !== 1 ? 's' : ''}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Mesa central */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 py-2">
+
+          {/* Indicador de cor atual */}
+          {estado.corAtual && (
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${corAtualObj?.bg || ''} shadow-lg`}>
+              <div className="w-2 h-2 rounded-full bg-white/80" />
+              <span className="text-white text-xs font-bold uppercase tracking-wider">{COR_LABEL[estado.corAtual]}</span>
+            </div>
+          )}
+
+          <div className="flex items-center gap-5 sm:gap-8">
+            {/* Baralho */}
+            <div className="flex flex-col items-center gap-1">
+              <motion.button
+                whileTap={ehMinhVez ? { scale: 0.92, rotate: -5 } : {}}
+                onClick={ehMinhVez ? comprar : undefined}
+                className={`relative flex items-center justify-center rounded-2xl border-2 border-white/20 w-16 h-22 sm:w-20 sm:h-28 transition-all ${
+                  ehMinhVez
+                    ? 'cursor-pointer hover:border-white/60 hover:shadow-[0_0_20px_white/20] bg-gradient-to-br from-[oklch(0.25_0.05_265)] to-[oklch(0.15_0.03_265)]'
+                    : 'cursor-not-allowed opacity-50 bg-gradient-to-br from-[oklch(0.2_0.04_265)] to-[oklch(0.12_0.02_265)]'
+                }`}
+                style={{ height: '88px' }}
+              >
+                {/* Padrão no verso */}
+                <div className="absolute inset-2 rounded-xl bg-[oklch(0.63_0.24_27)]/30 border border-[oklch(0.63_0.24_27)]/40" />
+                <span className="relative font-display text-white text-base tracking-wider z-10">UNO</span>
+                {estado.acumulado > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-2.5 -right-2.5 bg-[oklch(0.63_0.24_27)] text-white text-xs font-black rounded-full w-7 h-7 flex items-center justify-center shadow-lg ring-2 ring-[oklch(0.14_0.03_265)]"
+                  >
+                    +{estado.acumulado}
+                  </motion.span>
+                )}
+              </motion.button>
+              {ehMinhVez && <p className="text-[10px] text-zinc-500">comprar</p>}
+            </div>
+
+            {/* Topo da pilha */}
+            <div className="flex flex-col items-center gap-1">
+              <CartaTopo carta={topo} corAtual={estado.corAtual} />
+              <p className="text-[10px] text-zinc-500">pilha</p>
+            </div>
+          </div>
+
+          {/* Info do turno */}
+          <div className="text-center">
+            {ehMinhVez ? (
+              <motion.p
+                animate={{ opacity: [1, 0.5, 1] }}
+                transition={{ repeat: Infinity, duration: 1.2 }}
+                className="text-sm font-bold text-[oklch(0.86_0.17_85)]"
+              >
+                 Sua vez!
+              </motion.p>
+            ) : (
+              <p className="text-sm text-zinc-400">
+                Vez de <span className="text-white font-bold" translate="no">{pById(estado.turnoAtual)?.name}</span>
+              </p>
+            )}
+            {estado.acumulado > 0 && (
+              <motion.p
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                className="text-xs font-bold text-[oklch(0.85_0.18_27)] mt-1 bg-[oklch(0.63_0.24_27)]/15 px-3 py-1 rounded-full inline-block"
+              >
+                 Acumulado: +{estado.acumulado} cartas!
+              </motion.p>
+            )}
+          </div>
+
+          {/* Ação do 0 */}
+          {ehMinhVez && estado.fase === 'acaoZero' && (
+            <motion.button
+              initial={{ scale: 0 }} animate={{ scale: 1 }}
+              onClick={() => setModal('acaoZero')}
+              className="rounded-2xl bg-[oklch(0.85_0.18_90)] px-5 py-2.5 text-sm font-bold text-zinc-900 shadow-lg hover:opacity-90 transition"
+            >
+              0 Escolher ação da carta 0
+            </motion.button>
+          )}
+
+        </div>
+
+        {/* Botao chat */}
+        <div className="fixed bottom-36 right-3 z-30 sm:bottom-40 sm:right-4">
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setChatAberto((v) => !v)}
+            className="w-11 h-11 rounded-2xl bg-[oklch(0.22_0.035_265)] ring-1 ring-white/20 flex items-center justify-center text-zinc-300 hover:ring-white/40 transition shadow-lg"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </motion.button>
+        </div>
+
+        {/* Mensagens recentes */}
+        <div className="fixed bottom-48 left-2 right-2 z-20 pointer-events-none sm:left-4 sm:right-auto sm:w-64">
+          <AnimatePresence>
+            {mensagens.slice(-3).map((m) => (
+              <motion.div
+                key={m.ts}
+                initial={{ opacity: 0, x: -20, y: 0 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="mb-1 bg-[oklch(0.18_0.03_265)]/90 backdrop-blur-sm rounded-xl px-3 py-2 ring-1 ring-white/10"
+              >
+                <span className="text-[10px] font-bold text-zinc-400" translate="no">{m.nome}: </span>
+                <span className="text-xs text-white">{m.texto}</span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Painel de frases */}
+        <AnimatePresence>
+          {chatAberto && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed bottom-48 right-3 z-30 w-64 uno-card-surface rounded-2xl p-3 shadow-2xl sm:right-4"
+            >
+              <p className="text-xs text-zinc-400 uppercase tracking-widest mb-2 px-1">Mandar frase</p>
+              <div className="space-y-1.5 max-h-72 overflow-y-auto">
+                {FRASES.map((frase) => (
+                  <button
+                    key={frase}
+                    onClick={() => enviarFrase(frase)}
+                    className="w-full text-left text-xs text-zinc-200 bg-[oklch(0.22_0.035_265)]/60 hover:bg-[oklch(0.28_0.04_265)] px-3 py-2 rounded-xl ring-1 ring-white/5 hover:ring-white/20 transition"
+                  >
+                    {frase}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setChatAberto(false)}
+                className="mt-2 w-full text-xs text-zinc-500 hover:text-zinc-300 transition"
+              >
