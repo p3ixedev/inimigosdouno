@@ -61,14 +61,24 @@ function podePagar(carta, topo, corAtual, acumulado) {
 
 function cartasSequenciaCompativeis(anterior, atual) {
   if (atual.tipo === 'especial' || anterior.tipo === 'especial') return false;
-  // Mesmo valor em qualquer cor: OK (ex: 9 verde -> 9 azul)
-  if (atual.valor === anterior.valor) return true;
-  // Mesma cor com valores numéricos adjacentes: OK (ex: 8 verde -> 9 verde)
+
+  // Mesmo valor em qualquer cor: OK
+  // Ex: 4 verde -> 4 verde, 4 verde -> 4 azul, bloqueio verde -> bloqueio azul
+  if (String(atual.valor) === String(anterior.valor)) return true;
+
+  // Mesma cor: valores numéricos adjacentes (crescente ou decrescente)
+  // Ex: 2 verde -> 3 verde, 9 azul -> 8 azul
   if (atual.cor === anterior.cor) {
     const valAtual = Number(atual.valor);
     const valAnterior = Number(anterior.valor);
     if (!isNaN(valAtual) && !isNaN(valAnterior) && Math.abs(valAtual - valAnterior) === 1) return true;
   }
+
+  // Transição de cor pelo mesmo valor numérico já coberta acima
+  // Ex: 3 verde -> 3 vermelho -> 4 vermelho
+  // O par "3v->3r" é coberto por "mesmo valor"
+  // O par "3r->4r" é coberto por "mesma cor adjacente"
+
   return false;
 }
 

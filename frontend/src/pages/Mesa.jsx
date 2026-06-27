@@ -90,7 +90,7 @@ function getSubLabelCarta(carta) {
 }
 
 // Carta na mão do jogador
-function CartaMao({ carta, selecionada, onClick, disabled, destaque }) {
+function CartaMao({ carta, selecionada, onClick, disabled }) {
   const isEspecial = carta.tipo === 'especial';
   const corObj = carta.cor ? COR[carta.cor] : null;
   const bgClass = corObj ? corObj.bg : 'bg-gradient-to-br from-zinc-700 to-zinc-900';
@@ -103,15 +103,15 @@ function CartaMao({ carta, selecionada, onClick, disabled, destaque }) {
       layout
       whileHover={!disabled ? { y: -16, scale: 1.1, rotate: -3 } : {}}
       whileTap={!disabled ? { scale: 0.93 } : {}}
-      animate={selecionada ? { y: -20, scale: 1.12 } : destaque ? { y: -8, scale: 1.05 } : { y: 0, scale: 1 }}
+      animate={selecionada ? { y: -20, scale: 1.12 } : { y: 0, scale: 1 }}
       onClick={onClick}
       disabled={disabled}
       className={`
         relative flex-shrink-0 rounded-xl select-none transition-shadow
         w-11 h-16 sm:w-14 sm:h-20
         ${bgClass}
-        ${selecionada ? 'ring-4 ring-white shadow-[0_0_25px_white/50]' : destaque ? 'ring-2 ring-[oklch(0.86_0.17_85)] shadow-[0_0_20px_oklch(0.86_0.17_85/0.6)]' : 'ring-1 ring-white/20'}
-        ${disabled && !destaque ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+        ${selecionada ? 'ring-4 ring-white shadow-[0_0_25px_white/50]' : 'ring-1 ring-white/20'}
+        ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
       `}
       style={{ boxShadow: selecionada ? '0 8px 30px rgba(255,255,255,0.3)' : undefined }}
     >
@@ -258,7 +258,6 @@ export default function Mesa() {
   const [modal, setModal] = useState(null);
   const [alvoZero, setAlvoZero] = useState(null);
   const [unoAnim, setUnoAnim] = useState(null);
-  const [cartaCompradaJogavel, setCartaCompradaJogavel] = useState(null);
   const [notif, setNotif] = useState(null);
   const channelRef = useRef(null);
 
@@ -304,7 +303,6 @@ export default function Mesa() {
       setEstado(e);
       setCartasSelecionadas([]);
       setModal(null);
-      setCartaCompradaJogavel(e.cartaCompradaJogavel || null);
     });
 
     channel.bind('uno-declarado', ({ jogadorId, estado: e }) => {
@@ -350,7 +348,6 @@ export default function Mesa() {
 
   async function comprar() {
     setErro('');
-    setCartaCompradaJogavel(null);
     try {
       await apiAcao(codigo, user.id, 'comprar');
     } catch (e) {
@@ -360,7 +357,6 @@ export default function Mesa() {
 
   async function passarVez() {
     setErro('');
-    setCartaCompradaJogavel(null);
     try {
       await apiAcao(codigo, user.id, 'passar');
     } catch (e) {
@@ -768,8 +764,7 @@ export default function Mesa() {
                 <button
                   onClick={() => {
                     setCartasSelecionadas([cartaCompradaJogavel]);
-                    setCartaCompradaJogavel(null);
-                  }}
+                                  }}
                   className="rounded-2xl bg-[oklch(0.68_0.2_152)] px-4 py-2.5 text-sm font-bold text-white hover:opacity-90 transition shadow-lg"
                 >
                    Jogar carta
@@ -837,8 +832,7 @@ export default function Mesa() {
                     <CartaMao
                       carta={carta}
                       selecionada={eSelecionada}
-                      destaque={eDestaque}
-                      onClick={() => ehMinhVez && toggleCarta(carta)}
+                        onClick={() => ehMinhVez && toggleCarta(carta)}
                       disabled={!ehMinhVez}
                     />
                   </motion.div>
