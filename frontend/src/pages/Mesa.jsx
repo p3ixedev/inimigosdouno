@@ -8,6 +8,19 @@ import UnoChip from '../components/UnoChip';
 import { Crown, Home, RotateCcw, ChevronRight } from 'lucide-react';
 
 const CORES_UNO = ['vermelho', 'azul', 'verde', 'amarelo'];
+
+const FRASES = [
+  "Nem minha vó jogava assim",
+  "Continua assim...",
+  "Desiste logo",
+  "Tô sendo roubado",
+  "Impossível isso",
+  "Pega +4 idiota",
+  "Você é uma vergonha",
+  "Até meu cachorro joga melhor",
+  "Obrigado pelo +4",
+  "Tô gostando desse baralho",
+];
 const COR_LABEL = { vermelho: 'Vermelho', azul: 'Azul', verde: 'Verde', amarelo: 'Amarelo' };
 
 const COR = {
@@ -259,6 +272,8 @@ export default function Mesa() {
   const [alvoZero, setAlvoZero] = useState(null);
   const [unoAnim, setUnoAnim] = useState(null);
   const [notif, setNotif] = useState(null);
+  const [chatAberto, setChatAberto] = useState(false);
+  const [mensagens, setMensagens] = useState([]);
   const channelRef = useRef(null);
 
   const pById = (id) => PLAYERS.find((p) => p.id === id);
@@ -311,6 +326,11 @@ export default function Mesa() {
       setUnoAnim(jogadorId);
       mostrarNotif(`${p?.name} gritou UNO! `, 'uno');
       setTimeout(() => setUnoAnim(null), 2500);
+    });
+
+    channel.bind('chat-mensagem', ({ jogadorId, texto }) => {
+      const p = PLAYERS.find((pl) => pl.id === jogadorId);
+      setMensagens((prev) => [...prev.slice(-19), { jogadorId, nome: p?.name || jogadorId, texto, ts: Date.now() }]);
     });
 
     return () => { channel.unbind_all(); };
@@ -376,6 +396,13 @@ export default function Mesa() {
   async function declararUno() {
     try {
       await apiAcao(codigo, user.id, 'uno');
+    } catch (e) {}
+  }
+
+  async function enviarFrase(texto) {
+    try {
+      await apiAcao(codigo, user.id, 'chat', { texto });
+      setChatAberto(false);
     } catch (e) {}
   }
 
@@ -610,219 +637,3 @@ export default function Mesa() {
                   <div className="space-y-2">
                     {estado.jogadores.filter((id) => id !== user.id).map((id) => {
                       const p = pById(id);
-                      return (
-                        <button key={id} onClick={() => confirmarAcaoZero(alvoZero, id)}
-                          className="w-full flex items-center gap-3 rounded-2xl bg-[oklch(0.22_0.035_265)]/60 px-4 py-3 hover:bg-[oklch(0.28_0.04_265)] transition ring-1 ring-white/10">
-                          {p && <UnoChip color={p.color} label={p.name[0]} sm />}
-                          <span className="font-semibold" translate="no">{p?.name}</span>
-                          <ChevronRight className="h-4 w-4 text-zinc-500 ml-auto" />
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button onClick={() => setAlvoZero(null)} className="mt-4 text-xs text-zinc-500 hover:text-zinc-300">
-                    ← Voltar
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="relative z-10 flex flex-col min-h-screen p-2 sm:p-3 gap-2">
-
-        {/* Outros jogadores */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {estado.jogadores.filter((id) => id !== user.id).map((id) => {
-            const p = pById(id);
-            const mao = estado.maos[id] || [];
-            const ehVez = estado.turnoAtual === id;
-            const temUno = estado.unoDeclarado?.[id];
-            return (
-              <motion.div
-                key={id}
-                animate={ehVez ? { scale: [1, 1.02, 1] } : { scale: 1 }}
-                transition={{ repeat: ehVez ? Infinity : 0, duration: 1.5 }}
-                className={`uno-card-surface rounded-2xl p-3 flex flex-col gap-2 transition-all ${
-                  ehVez ? 'ring-2 ring-[oklch(0.86_0.17_85)] shadow-[0_0_20px_oklch(0.86_0.17_85/0.3)]' : 'ring-1 ring-white/5'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {p && <UnoChip color={p.color} label={p.name[0]} sm />}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold truncate" translate="no">{p?.name}</p>
-                    {ehVez && (
-                      <p className="text-[10px] font-bold text-[oklch(0.86_0.17_85)] animate-pulse">vez dele </p>
-                    )}
-                  </div>
-                  {temUno && (
-                    <span className="text-[10px] font-black text-[oklch(0.86_0.17_85)] bg-[oklch(0.86_0.17_85)]/10 px-1.5 py-0.5 rounded-full">UNO</span>
-                  )}
-                </div>
-                <CartaVerso count={mao.length} />
-                <p className="text-[10px] text-zinc-500 text-center">{mao.length} carta{mao.length !== 1 ? 's' : ''}</p>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Mesa central */}
-        <div className="flex-1 flex flex-col items-center justify-center gap-3 py-2">
-
-          {/* Indicador de cor atual */}
-          {estado.corAtual && (
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${corAtualObj?.bg || ''} shadow-lg`}>
-              <div className="w-2 h-2 rounded-full bg-white/80" />
-              <span className="text-white text-xs font-bold uppercase tracking-wider">{COR_LABEL[estado.corAtual]}</span>
-            </div>
-          )}
-
-          <div className="flex items-center gap-5 sm:gap-8">
-            {/* Baralho */}
-            <div className="flex flex-col items-center gap-1">
-              <motion.button
-                whileTap={ehMinhVez ? { scale: 0.92, rotate: -5 } : {}}
-                onClick={ehMinhVez ? comprar : undefined}
-                className={`relative flex items-center justify-center rounded-2xl border-2 border-white/20 w-16 h-22 sm:w-20 sm:h-28 transition-all ${
-                  ehMinhVez
-                    ? 'cursor-pointer hover:border-white/60 hover:shadow-[0_0_20px_white/20] bg-gradient-to-br from-[oklch(0.25_0.05_265)] to-[oklch(0.15_0.03_265)]'
-                    : 'cursor-not-allowed opacity-50 bg-gradient-to-br from-[oklch(0.2_0.04_265)] to-[oklch(0.12_0.02_265)]'
-                }`}
-                style={{ height: '88px' }}
-              >
-                {/* Padrão no verso */}
-                <div className="absolute inset-2 rounded-xl bg-[oklch(0.63_0.24_27)]/30 border border-[oklch(0.63_0.24_27)]/40" />
-                <span className="relative font-display text-white text-base tracking-wider z-10">UNO</span>
-                {estado.acumulado > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-2.5 -right-2.5 bg-[oklch(0.63_0.24_27)] text-white text-xs font-black rounded-full w-7 h-7 flex items-center justify-center shadow-lg ring-2 ring-[oklch(0.14_0.03_265)]"
-                  >
-                    +{estado.acumulado}
-                  </motion.span>
-                )}
-              </motion.button>
-              {ehMinhVez && <p className="text-[10px] text-zinc-500">comprar</p>}
-            </div>
-
-            {/* Topo da pilha */}
-            <div className="flex flex-col items-center gap-1">
-              <CartaTopo carta={topo} corAtual={estado.corAtual} />
-              <p className="text-[10px] text-zinc-500">pilha</p>
-            </div>
-          </div>
-
-          {/* Info do turno */}
-          <div className="text-center">
-            {ehMinhVez ? (
-              <motion.p
-                animate={{ opacity: [1, 0.5, 1] }}
-                transition={{ repeat: Infinity, duration: 1.2 }}
-                className="text-sm font-bold text-[oklch(0.86_0.17_85)]"
-              >
-                 Sua vez!
-              </motion.p>
-            ) : (
-              <p className="text-sm text-zinc-400">
-                Vez de <span className="text-white font-bold" translate="no">{pById(estado.turnoAtual)?.name}</span>
-              </p>
-            )}
-            {estado.acumulado > 0 && (
-              <motion.p
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                className="text-xs font-bold text-[oklch(0.85_0.18_27)] mt-1 bg-[oklch(0.63_0.24_27)]/15 px-3 py-1 rounded-full inline-block"
-              >
-                 Acumulado: +{estado.acumulado} cartas!
-              </motion.p>
-            )}
-          </div>
-
-          {/* Ação do 0 */}
-          {ehMinhVez && estado.fase === 'acaoZero' && (
-            <motion.button
-              initial={{ scale: 0 }} animate={{ scale: 1 }}
-              onClick={() => setModal('acaoZero')}
-              className="rounded-2xl bg-[oklch(0.85_0.18_90)] px-5 py-2.5 text-sm font-bold text-zinc-900 shadow-lg hover:opacity-90 transition"
-            >
-              0 Escolher ação da carta 0
-            </motion.button>
-          )}
-
-        </div>
-
-        {/* Minha mão */}
-        <div className="uno-card-surface rounded-3xl p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              {user && pById(user.id) && (
-                <UnoChip color={pById(user.id).color} label={user.name[0]} sm />
-              )}
-              <span className="text-sm font-semibold" translate="no">{user?.name}</span>
-              <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full">{minhaMao.length}</span>
-            </div>
-            <div className="flex gap-2">
-              {minhaMao.length === 1 && (
-                <motion.button
-                  initial={{ scale: 0 }} animate={{ scale: 1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={declararUno}
-                  className="rounded-xl bg-[oklch(0.86_0.17_85)] px-4 py-1.5 text-xs font-black text-zinc-900 uppercase tracking-wider shadow-[0_4px_15px_oklch(0.86_0.17_85/0.5)] hover:opacity-90 transition"
-                >
-                  UNO! 
-                </motion.button>
-              )}
-              {cartasSelecionadas.length > 0 && ehMinhVez && (
-                <motion.button
-                  initial={{ scale: 0 }} animate={{ scale: 1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={jogar}
-                  className="rounded-xl bg-[oklch(0.63_0.24_27)] px-4 py-1.5 text-xs font-bold text-white uppercase tracking-wider hover:bg-[oklch(0.68_0.24_27)] transition shadow-lg"
-                >
-                  Jogar {cartasSelecionadas.length > 1 ? `(${cartasSelecionadas.length})` : '▶'}
-                </motion.button>
-              )}
-            </div>
-          </div>
-
-          {/* Cartas */}
-          <div className="flex gap-1 sm:gap-1.5 overflow-x-auto pb-2 pt-1 flex-wrap">
-            <AnimatePresence>
-              {minhaMao.map((carta) => {
-                const eSelecionada = cartasSelecionadas.some((c) => c.id === carta.id);
-                return (
-                  <motion.div
-                    key={carta.id}
-                    layout
-                    initial={{ scale: 0, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0, opacity: 0, y: -20 }}
-                    transition={{ type: 'spring', stiffness: 200 }}
-                  >
-                    <CartaMao
-                      carta={carta}
-                      selecionada={eSelecionada}
-                        onClick={() => ehMinhVez && toggleCarta(carta)}
-                      disabled={!ehMinhVez}
-                    />
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-
-          {erro && (
-            <motion.p
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="mt-2 text-xs text-[oklch(0.85_0.18_27)] text-center bg-[oklch(0.63_0.24_27)]/10 px-3 py-1.5 rounded-xl"
-            >
-               {erro}
-            </motion.p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}

@@ -114,6 +114,15 @@ module.exports = async (req, res) => {
         break;
       }
 
+      case 'chat': {
+        if (!dados.texto) return res.status(400).json({ error: 'Texto vazio' });
+        await pusher.trigger(`sala-${codigo.toUpperCase()}`, 'chat-mensagem', {
+          jogadorId,
+          texto: dados.texto,
+        });
+        return res.status(200).json({ ok: true });
+      }
+
       case 'uno': {
         novoEstado = declararUno(novoEstado, jogadorId);
         await salas.updateOne({ codigo: codigo.toUpperCase() }, { $set: { estado: novoEstado } });
