@@ -11,16 +11,16 @@ const CORES_UNO = ['vermelho', 'azul', 'verde', 'amarelo'];
 const COR_LABEL = { vermelho: 'Vermelho', azul: 'Azul', verde: 'Verde', amarelo: 'Amarelo' };
 
 const FRASES = [
-  "Nem minha vo jogava assim",
+  "Nem minha vó jogava assim",
   "Continua assim...",
   "Desiste logo",
-  "To sendo roubado",
-  "Impossivel isso",
+  "Tô sendo roubado",
+  "Impossível isso",
   "Pega +4 idiota",
-  "Voce e uma vergonha",
-  "Ate meu cachorro joga melhor",
+  "Você é uma vergonha",
+  "Até meu cachorro joga melhor",
   "Obrigado pelo +4",
-  "To gostando desse baralho",
+  "Tô gostando desse baralho",
 ];
 
 const COR = {
@@ -208,6 +208,8 @@ export default function Mesa() {
   const [notif, setNotif] = useState(null);
   const [chatAberto, setChatAberto] = useState(false);
   const [mensagens, setMensagens] = useState([]);
+  const [textoChat, setTextoChat] = useState('');
+  const mensagensEndRef = useRef(null);
   const channelRef = useRef(null);
 
   const pById = (id) => PLAYERS.find((p) => p.id === id);
@@ -310,7 +312,15 @@ export default function Mesa() {
   async function enviarFrase(texto) {
     try {
       await apiAcao(codigo, user.id, 'chat', { texto });
-      setChatAberto(false);
+    } catch (e) {}
+  }
+
+  async function enviarTexto() {
+    const texto = textoChat.trim();
+    if (!texto) return;
+    setTextoChat('');
+    try {
+      await apiAcao(codigo, user.id, 'chat', { texto });
     } catch (e) {}
   }
 
@@ -419,6 +429,40 @@ export default function Mesa() {
             <p className="text-center text-sm text-zinc-400 animate-pulse py-2">Aguardando o criador iniciar...</p>
           )}
           {erro && <p className="mt-3 text-sm text-[oklch(0.85_0.18_27)] text-center">{erro}</p>}
+
+          {/* Chat do lobby */}
+          <div className="mt-4 border-t border-white/10 pt-4">
+            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-2">Chat</p>
+            <div className="bg-[oklch(0.18_0.03_265)]/60 rounded-2xl p-2 mb-2 h-28 overflow-y-auto flex flex-col gap-1">
+              {mensagens.length === 0 ? (
+                <p className="text-xs text-zinc-600 text-center mt-8">Nenhuma mensagem ainda</p>
+              ) : (
+                mensagens.map((m) => (
+                  <div key={m.ts} className="text-xs">
+                    <span className="font-bold text-zinc-400" translate="no">{m.nome}: </span>
+                    <span className="text-zinc-200">{m.texto}</span>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="flex gap-1.5">
+              <input
+                type="text"
+                value={textoChat}
+                onChange={(e) => setTextoChat(e.target.value.slice(0, 100))}
+                onKeyDown={(e) => e.key === 'Enter' && enviarTexto()}
+                placeholder="Digite uma mensagem..."
+                className="flex-1 bg-[oklch(0.22_0.035_265)]/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-[oklch(0.63_0.24_27)] transition [color-scheme:dark]"
+              />
+              <button
+                onClick={enviarTexto}
+                disabled={!textoChat.trim()}
+                className="px-3 py-2 rounded-xl bg-[oklch(0.63_0.24_27)] text-white text-xs font-bold disabled:opacity-40 hover:bg-[oklch(0.68_0.24_27)] transition"
+              >
+                Enviar
+              </button>
+            </div>
+          </div>
         </motion.div>
       </div>
     );
