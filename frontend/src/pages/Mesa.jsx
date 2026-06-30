@@ -608,8 +608,26 @@ export default function Mesa() {
             exit={{ opacity: 0, y: 20 }}
             className="fixed bottom-48 right-3 z-30 w-64 uno-card-surface rounded-2xl p-3 shadow-2xl sm:right-4"
           >
-            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-2 px-1">Mandar frase</p>
-            <div className="space-y-1.5 max-h-72 overflow-y-auto">
+            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-2 px-1">Chat ao vivo</p>
+            <div className="flex gap-1.5 mb-2">
+              <input
+                type="text"
+                value={textoChat}
+                onChange={(e) => setTextoChat(e.target.value.slice(0, 100))}
+                onKeyDown={(e) => e.key === 'Enter' && enviarTexto()}
+                placeholder="Digite uma mensagem..."
+                className="flex-1 bg-[oklch(0.22_0.035_265)]/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-[oklch(0.63_0.24_27)] transition [color-scheme:dark]"
+              />
+              <button
+                onClick={enviarTexto}
+                disabled={!textoChat.trim()}
+                className="px-3 py-2 rounded-xl bg-[oklch(0.63_0.24_27)] text-white text-xs font-bold disabled:opacity-40 hover:bg-[oklch(0.68_0.24_27)] transition"
+              >
+                Enviar
+              </button>
+            </div>
+            <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1.5 px-1">Frases rapidas</p>
+            <div className="space-y-1.5 max-h-44 overflow-y-auto">
               {FRASES.map((frase) => (
                 <button
                   key={frase}

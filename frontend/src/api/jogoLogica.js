@@ -116,10 +116,13 @@ export function calcularEfeito(cartas) {
 
 export function calcularEfeitoComJogadores(cartas, totalJogadores) {
   const efeito = calcularEfeito(cartas);
-  // Com 2 jogadores, reverso funciona como bloqueio
-  if (totalJogadores === 2 && efeito.reverter) {
-    efeito.reverter = false;
-    efeito.pularVez = true;
+  // Com 2 jogadores, qualquer quantidade de reverso = bloqueio (volta pra quem jogou)
+  if (totalJogadores === 2) {
+    const reversos = cartas.filter((c) => c.valor === 'reverso').length;
+    if (reversos > 0) {
+      efeito.reverter = false;
+      efeito.pularVez = true;
+    }
   }
   return efeito;
 }
