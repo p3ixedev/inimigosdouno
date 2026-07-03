@@ -165,6 +165,7 @@ export function criarEstadoInicial(jogadores) {
     fase: 'jogando',
     vencedor: null,
     unoDeclarado: {},
+    jaComprou: false,
   };
 }
 
@@ -191,6 +192,7 @@ export function processarJogada(estado, jogadorId, cartasJogadas, corEscolhida =
     maos: { ...estado.maos, [jogadorId]: novaMao },
     pilha: novaPilha,
     acumulado: 0,
+    jaComprou: false,
   };
 
   if (novaMao.length === 0) return { ...novoEstado, fase: 'fim', vencedor: jogadorId };

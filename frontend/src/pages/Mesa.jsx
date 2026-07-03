@@ -208,6 +208,7 @@ export default function Mesa() {
   const [notif, setNotif] = useState(null);
   const [chatAberto, setChatAberto] = useState(false);
   const [mensagens, setMensagens] = useState([]);
+  const [verCartasModal, setVerCartasModal] = useState(null); // { nome, cartas }
   const [textoChat, setTextoChat] = useState('');
   const mensagensEndRef = useRef(null);
   const channelRef = useRef(null);
@@ -327,9 +328,19 @@ export default function Mesa() {
   async function confirmarAcaoZero(acao, alvoId) {
     setErro('');
     try {
-      await apiAcao(codigo, user.id, 'acaoZero', { acao, alvoId });
-      setModal(null);
-      setAlvoZero(null);
+      if (acao === 'ver') {
+        // Mostra as cartas do alvo localmente (estado ja foi atualizado pelo pusher)
+        const p = pById(alvoId);
+        const cartasAlvo = estado.maos[alvoId] || [];
+        setVerCartasModal({ nome: p?.name || alvoId, cartas: cartasAlvo });
+        await apiAcao(codigo, user.id, 'acaoZero', { acao, alvoId });
+        setModal(null);
+        setAlvoZero(null);
+      } else {
+        await apiAcao(codigo, user.id, 'acaoZero', { acao, alvoId });
+        setModal(null);
+        setAlvoZero(null);
+      }
     } catch (e) { setErro(e.message); }
   }
 
@@ -563,6 +574,38 @@ export default function Mesa() {
                   </button>
                 </div>
               )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal ver cartas do zero */}
+      <AnimatePresence>
+        {verCartasModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40 flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="uno-card-surface rounded-3xl p-6 w-full max-w-sm text-center">
+              <p className="font-display text-2xl mb-1">Cartas de <span translate="no">{verCartasModal.nome}</span></p>
+              <p className="text-xs text-zinc-400 mb-4">So voce pode ver isso</p>
+              <div className="flex flex-wrap gap-2 justify-center mb-5">
+                {verCartasModal.cartas.map((carta) => {
+                  const corObj = carta.cor ? COR[carta.cor] : null;
+                  const bgClass = corObj ? corObj.bg : 'bg-zinc-700';
+                  const label = getLabelCarta(carta);
+                  const icon = getIconCarta(carta);
+                  return (
+                    <div key={carta.id} className={`relative flex items-center justify-center rounded-xl w-10 h-14 ring-1 ring-white/20 ${bgClass}`}>
+                      {icon ? (
+                        <span className="text-white block w-6 h-6">{icon}</span>
+                      ) : (
+                        <span className="text-white font-black text-lg">{label}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <button onClick={() => setVerCartasModal(null)} className="w-full rounded-2xl bg-[oklch(0.63_0.24_27)] py-3 text-sm font-bold text-white hover:bg-[oklch(0.68_0.24_27)] transition">
+                Fechar
+              </button>
             </motion.div>
           </motion.div>
         )}
