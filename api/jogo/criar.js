@@ -46,6 +46,13 @@ module.exports = async (req, res) => {
 
     await salas.insertOne(sala);
 
+    // Notifica todos na pagina inicial sobre a nova sala
+    await pusher.trigger('lobby-global', 'sala-criada', {
+      codigo,
+      criadorId,
+      criadorNome,
+    });
+
     return res.status(200).json({ codigo, sala });
   } catch (e) {
     console.error(e);

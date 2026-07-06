@@ -20,6 +20,8 @@ import {
   Trash2,
   User,
   LogOut,
+  X,
+  Gamepad2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,6 +30,7 @@ import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 
 import { PLAYERS, COLOR_STYLES, startOfWeek } from '../data/players';
+import { getChannel } from '../api/pusher';
 import { fetchMatches, createMatch, deleteMatch } from '../api/matches';
 import UnoChip from '../components/UnoChip';
 import FloatingCards from '../components/FloatingCards';
@@ -56,6 +59,17 @@ export default function Home() {
   const [selectedWinners, setSelectedWinners] = useState([]);
   const [note, setNote] = useState('');
   const [tab, setTab] = useState('geral');
+  const [notificacaoSala, setNotificacaoSala] = useState(null);
+
+  useEffect(() => {
+    const channel = getChannel('lobby-global');
+    channel.bind('sala-criada', ({ codigo, criadorNome, criadorId }) => {
+      // Nao mostra pra quem criou a sala
+      if (user && user.id === criadorId) return;
+      setNotificacaoSala({ codigo, criadorNome });
+    });
+    return () => { channel.unbind_all(); };
+  }, [user]);
 
   useEffect(() => {
     let mounted = true;
@@ -179,6 +193,43 @@ export default function Home() {
   return (
     <div className="uno-bg relative">
       <FloatingCards />
+
+      {/* Banner de notificacao de sala */}
+      <AnimatePresence>
+        {notificacaoSala && (
+          <motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 bg-gradient-to-r from-[oklch(0.63_0.24_27)] to-[oklch(0.55_0.22_27)] px-4 py-3 shadow-2xl sm:px-6"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <Gamepad2 className="h-5 w-5 text-white/80 flex-shrink-0" />
+              <p className="text-sm text-white font-medium truncate">
+                <span className="font-bold" translate="no">{notificacaoSala.criadorNome}</span>
+                {" criou uma sala - bora jogar!"}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => navigate(`/jogo/${notificacaoSala.codigo}`)}
+                className="rounded-xl bg-white text-[oklch(0.63_0.24_27)] px-4 py-1.5 text-xs font-black uppercase tracking-wider hover:bg-white/90 transition shadow-lg"
+              >
+                Entrar
+              </button>
+              <button
+                onClick={() => setNotificacaoSala(null)}
+                className="rounded-xl p-1.5 text-white/70 hover:text-white hover:bg-white/10 transition"
+                aria-label="Fechar"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <main className="relative z-10 mx-auto max-w-5xl px-3 pb-16 pt-6 sm:px-4 sm:pb-24 sm:pt-12">
 
         {/* ===== NAVBAR ===== */}
@@ -188,7 +239,7 @@ export default function Home() {
               onClick={() => navigate('/jogo')}
               className="flex items-center gap-2 rounded-xl bg-[oklch(0.63_0.24_27)] px-3 py-2 text-xs font-bold text-white ring-1 ring-[oklch(0.63_0.24_27)] transition hover:bg-[oklch(0.68_0.24_27)] uppercase tracking-wider"
             >
-              🎮 Jogar
+              Jogar
             </button>
             <button
               onClick={() => navigate('/perfil')}
@@ -239,7 +290,7 @@ export default function Home() {
               <StatTile
                 delay={0.2}
                 label="Líder Geral"
-                value={matches.length ? stats.lead.name : '—'}
+                value={matches.length ? stats.lead.name : '?'}
                 icon={<Trophy className="h-4 w-4 text-[oklch(0.86_0.17_85)]" />}
               />
               <StatTile
@@ -248,7 +299,7 @@ export default function Home() {
                 value={
                   Object.values(stats.weekWins).some((v) => v > 0)
                     ? stats.weekLead.name
-                    : '—'
+                    : '?'
                 }
                 icon={<Crown className="h-4 w-4 text-[oklch(0.86_0.17_85)]" />}
               />
@@ -258,7 +309,7 @@ export default function Home() {
                 value={
                   stats.streaks[stats.topStreak.id] > 0
                     ? `${stats.topStreak.name} · ${stats.streaks[stats.topStreak.id]}`
-                    : '—'
+                    : '?'
                 }
                 icon={<Flame className="h-4 w-4 text-[oklch(0.63_0.24_27)]" />}
               />
@@ -617,54 +668,3 @@ function Section({ title, eyebrow, icon, children }) {
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-zinc-400 sm:text-[11px] sm:tracking-[0.35em]">
             {eyebrow}
-          </p>
-          <h2 className="font-display text-2xl flex items-center gap-2 sm:text-4xl sm:gap-3">
-            {icon}
-            {title}
-          </h2>
-        </div>
-      </div>
-      {children}
-    </motion.section>
-  );
-}
-
-function PlayerRow({ player, wins, rank, label, index = 0, isDesktop = true }) {
-  const medals = ['1º', '2º', '3º'];
-  const isTop = rank === 0 && wins > 0;
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -16 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.06 }}
-      whileHover={isDesktop ? { x: 4 } : {}}
-      className={`grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-2xl p-3 transition-colors sm:gap-4 sm:p-4 ${
-        isTop
-          ? 'uno-card-surface ring-1 ring-[oklch(0.86_0.17_85)]/50'
-          : 'bg-[oklch(0.22_0.035_265)]/50 ring-1 ring-white/5 hover:ring-white/15'
-      }`}
-    >
-      <div className="flex items-center gap-2 sm:gap-3">
-        <UnoChip color={player.color} label={player.name[0]} sm />
-        <span className="w-7 text-center font-display text-base text-zinc-400 sm:w-8 sm:text-lg">
-          {medals[rank] ?? `${rank + 1}º`}
-        </span>
-      </div>
-      <div className="min-w-0">
-        <p className="truncate font-semibold text-sm sm:text-base" translate="no">
-          {player.name}
-          {isTop && (
-            <Crown className="ml-2 inline h-4 w-4 text-[oklch(0.86_0.17_85)]" />
-          )}
-        </p>
-        {label && (
-          <p className="truncate text-[10px] text-zinc-400 sm:text-xs">{label}</p>
-        )}
-      </div>
-      <div className="text-right">
-        <p className="font-display text-2xl leading-none sm:text-3xl">{wins}</p>
-        <p className="text-[9px] uppercase tracking-widest text-zinc-400 sm:text-[10px]">vitórias</p>
-      </div>
-    </motion.div>
-  );
-}
