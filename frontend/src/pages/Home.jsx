@@ -668,3 +668,54 @@ function Section({ title, eyebrow, icon, children }) {
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-zinc-400 sm:text-[11px] sm:tracking-[0.35em]">
             {eyebrow}
+          </p>
+          <h2 className="font-display text-2xl flex items-center gap-2 sm:text-4xl sm:gap-3">
+            {icon}
+            {title}
+          </h2>
+        </div>
+      </div>
+      {children}
+    </motion.section>
+  );
+}
+
+function PlayerRow({ player, wins, rank, label, index = 0, isDesktop = true }) {
+  const medals = ['1o', '2o', '3o'];
+  const isTop = rank === 0 && wins > 0;
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -16 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.06 }}
+      whileHover={isDesktop ? { x: 4 } : {}}
+      className={`grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-2xl p-3 transition-colors sm:gap-4 sm:p-4 ${
+        isTop
+          ? 'uno-card-surface ring-1 ring-[oklch(0.86_0.17_85)]/50'
+          : 'bg-[oklch(0.22_0.035_265)]/50 ring-1 ring-white/5 hover:ring-white/15'
+      }`}
+    >
+      <div className="flex items-center gap-2 sm:gap-3">
+        <UnoChip color={player.color} label={player.name[0]} sm />
+        <span className="w-7 text-center font-display text-base text-zinc-400 sm:w-8 sm:text-lg">
+          {medals[rank] ?? `${rank + 1}o`}
+        </span>
+      </div>
+      <div className="min-w-0">
+        <p className="truncate font-semibold text-sm sm:text-base" translate="no">
+          {player.name}
+          {isTop && (
+            <Crown className="ml-2 inline h-4 w-4 text-[oklch(0.86_0.17_85)]" />
+          )}
+        </p>
+        {label && (
+          <p className="truncate text-[10px] text-zinc-400 sm:text-xs">{label}</p>
+        )}
+      </div>
+      <div className="text-right">
+        <p className="font-display text-2xl leading-none sm:text-3xl">{wins}</p>
+        <p className="text-[9px] uppercase tracking-widest text-zinc-400 sm:text-[10px]">vitórias</p>
+      </div>
+    </motion.div>
+  );
+}
