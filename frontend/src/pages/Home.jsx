@@ -194,41 +194,48 @@ export default function Home() {
     <div className="uno-bg relative">
       <FloatingCards />
 
-      {/* Banner de notificacao de sala */}
+      {/* Popup flutuante de notificacao de sala */}
       <AnimatePresence>
         {notificacaoSala && (
           <motion.div
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -100, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-            className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 bg-gradient-to-r from-[oklch(0.63_0.24_27)] to-[oklch(0.55_0.22_27)] px-4 py-3 shadow-2xl sm:px-6"
+            initial={{ y: -40, opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -40, opacity: 0, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 22 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-xl"
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <Gamepad2 className="h-5 w-5 text-white/80 flex-shrink-0" />
-              <p className="text-sm text-white font-medium truncate">
-                <span className="font-bold" translate="no">{notificacaoSala.criadorNome}</span>
-                {" criou uma sala - bora jogar!"}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button
-                onClick={() => navigate(`/jogo/${notificacaoSala.codigo}`)}
-                className="rounded-xl bg-white text-[oklch(0.63_0.24_27)] px-4 py-1.5 text-xs font-black uppercase tracking-wider hover:bg-white/90 transition shadow-lg"
-              >
-                Entrar
-              </button>
-              <button
-                onClick={() => setNotificacaoSala(null)}
-                className="rounded-xl p-1.5 text-white/70 hover:text-white hover:bg-white/10 transition"
-                aria-label="Fechar"
-              >
-                <X className="h-4 w-4" />
-              </button>
+            <div className="flex items-center gap-4 rounded-3xl bg-gradient-to-r from-[oklch(0.63_0.24_27)] to-[oklch(0.5_0.2_27)] px-5 py-4 shadow-[0_20px_60px_-15px_oklch(0.63_0.24_27/0.6)] ring-1 ring-white/20 sm:gap-5 sm:px-7 sm:py-5">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 sm:h-12 sm:w-12">
+                <Gamepad2 className="h-6 w-6 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-white sm:text-base" translate="no">
+                  {notificacaoSala.criadorNome}
+                </p>
+                <p className="text-xs text-white/80 sm:text-sm">
+                  criou uma sala - bora jogar!
+                </p>
+              </div>
+              <div className="flex flex-shrink-0 items-center gap-2">
+                <button
+                  onClick={() => navigate(`/jogo/${notificacaoSala.codigo}`)}
+                  className="rounded-2xl bg-white px-5 py-2.5 text-xs font-black uppercase tracking-wider text-[oklch(0.63_0.24_27)] shadow-lg transition hover:bg-white/90 sm:text-sm"
+                >
+                  Entrar
+                </button>
+                <button
+                  onClick={() => setNotificacaoSala(null)}
+                  className="rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white"
+                  aria-label="Fechar"
+                >
+                  <X className="h-4 w-4 sm:h-5 sm:w-5" />
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
 
       <main className="relative z-10 mx-auto max-w-5xl px-3 pb-16 pt-6 sm:px-4 sm:pb-24 sm:pt-12">
 
