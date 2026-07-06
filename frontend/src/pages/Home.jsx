@@ -202,30 +202,41 @@ export default function Home() {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: -40, opacity: 0, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 220, damping: 22 }}
-            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-xl"
+            className="fixed top-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 sm:max-w-xl"
           >
-            <div className="flex items-center gap-4 rounded-3xl bg-gradient-to-r from-[oklch(0.63_0.24_27)] to-[oklch(0.5_0.2_27)] px-5 py-4 shadow-[0_20px_60px_-15px_oklch(0.63_0.24_27/0.6)] ring-1 ring-white/20 sm:gap-5 sm:px-7 sm:py-5">
-              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 sm:h-12 sm:w-12">
-                <Gamepad2 className="h-6 w-6 text-white" />
+            <div className="relative flex flex-col gap-3 rounded-3xl bg-gradient-to-r from-[oklch(0.63_0.24_27)] to-[oklch(0.5_0.2_27)] px-5 py-4 shadow-[0_20px_60px_-15px_oklch(0.63_0.24_27/0.6)] ring-1 ring-white/20 sm:flex-row sm:items-center sm:gap-5 sm:px-7 sm:py-5">
+              <button
+                onClick={() => setNotificacaoSala(null)}
+                className="absolute right-3 top-3 rounded-xl p-1.5 text-white/70 transition hover:bg-white/10 hover:text-white sm:hidden"
+                aria-label="Fechar"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 sm:h-12 sm:w-12">
+                  <Gamepad2 className="h-5 w-5 text-white sm:h-6 sm:w-6" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-white sm:text-base" translate="no">
+                    {notificacaoSala.criadorNome}
+                  </p>
+                  <p className="text-xs text-white/80 sm:text-sm">
+                    criou uma sala - bora jogar!
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-white sm:text-base" translate="no">
-                  {notificacaoSala.criadorNome}
-                </p>
-                <p className="text-xs text-white/80 sm:text-sm">
-                  criou uma sala - bora jogar!
-                </p>
-              </div>
-              <div className="flex flex-shrink-0 items-center gap-2">
+
+              <div className="flex flex-shrink-0 items-center gap-2 sm:ml-auto">
                 <button
                   onClick={() => navigate(`/jogo/${notificacaoSala.codigo}`)}
-                  className="rounded-2xl bg-white px-5 py-2.5 text-xs font-black uppercase tracking-wider text-[oklch(0.63_0.24_27)] shadow-lg transition hover:bg-white/90 sm:text-sm"
+                  className="flex-1 rounded-2xl bg-white px-5 py-2.5 text-xs font-black uppercase tracking-wider text-[oklch(0.63_0.24_27)] shadow-lg transition hover:bg-white/90 sm:flex-none sm:text-sm"
                 >
                   Entrar
                 </button>
                 <button
                   onClick={() => setNotificacaoSala(null)}
-                  className="rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white"
+                  className="hidden rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white sm:block"
                   aria-label="Fechar"
                 >
                   <X className="h-4 w-4 sm:h-5 sm:w-5" />
