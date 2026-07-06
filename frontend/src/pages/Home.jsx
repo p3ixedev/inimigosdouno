@@ -308,7 +308,7 @@ export default function Home() {
                 label="Sequência"
                 value={
                   stats.streaks[stats.topStreak.id] > 0
-                    ? `${stats.topStreak.name} · ${stats.streaks[stats.topStreak.id]}`
+                    ? `${stats.topStreak.name}  -  ${stats.streaks[stats.topStreak.id]}`
                     : '?'
                 }
                 icon={<Flame className="h-4 w-4 text-[oklch(0.63_0.24_27)]" />}
