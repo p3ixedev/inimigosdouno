@@ -136,6 +136,11 @@ export default function Home() {
     return [...PLAYERS].sort((a, b) => stats.wins[b.id] - stats.wins[a.id]);
   }, [stats]);
 
+  const historicoSemana = useMemo(() => {
+    const weekStart = startOfWeek();
+    return matches.filter((m) => m.ts >= weekStart);
+  }, [matches]);
+
   const togglePlayed = (id) => {
     setSelectedPlayed((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
@@ -351,7 +356,7 @@ export default function Home() {
 
             <div className="mt-6 inline-flex items-center gap-1.5 text-xs text-zinc-400">
               <ChevronDown className="h-3.5 w-3.5 animate-bounce" />
-              role para ver
+              Role para ver
             </div>
           </div>
         </motion.header>
@@ -572,22 +577,22 @@ export default function Home() {
         </Section>
 
         {/* ===== HISTÓRICO ===== */}
-        <Section title="Histórico" eyebrow="Memória">
+        <Section title="Histórico" eyebrow="Memória da Semana">
           <div className="rounded-2xl uno-card-surface p-4 sm:p-6">
             {loading ? (
               <div className="flex flex-col items-center py-10 text-center text-zinc-400">
                 <History className="mb-3 h-10 w-10 opacity-60 animate-pulse" />
                 <p className="font-medium">Carregando histórico...</p>
               </div>
-            ) : matches.length === 0 ? (
+            ) : historicoSemana.length === 0 ? (
               <div className="flex flex-col items-center py-10 text-center text-zinc-400">
                 <History className="mb-3 h-10 w-10 opacity-60" />
-                <p className="font-medium">Nenhuma partida ainda!</p>
+                <p className="font-medium">Nenhuma partida esta semana ainda!</p>
               </div>
             ) : (
               <ul className="space-y-3">
                 <AnimatePresence initial={false}>
-                  {matches.map((m) => (
+                  {historicoSemana.map((m) => (
                     <motion.li
                       key={m.id}
                       layout
@@ -614,7 +619,7 @@ export default function Home() {
                             })}
                           </div>
                           <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-400">
-                            <span>jogaram:</span>
+                            <span>Jogaram:</span>
                             {m.played.map((id) => {
                               const p = pById(id);
                               return (
