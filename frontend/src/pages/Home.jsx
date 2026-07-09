@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -20,6 +20,8 @@ import {
   Trash2,
   User,
   LogOut,
+  X,
+  Gamepad2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,10 +30,36 @@ import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 
 import { PLAYERS, COLOR_STYLES, startOfWeek } from '../data/players';
+import { getChannel } from '../api/pusher';
 import { fetchMatches, createMatch, deleteMatch } from '../api/matches';
 import UnoChip from '../components/UnoChip';
 import FloatingCards from '../components/FloatingCards';
 import Podium from '../components/Podium';
+
+// Conta de 0 ate o valor final quando entra na tela - efeito de placar ligando
+function CountUp({ value, duration = 1100 }) {
+  const [display, setDisplay] = useState(0);
+  const startedRef = useRef(false);
+
+  useEffect(() => {
+    const target = Number(value) || 0;
+    startedRef.current = true;
+    if (target === 0) { setDisplay(0); return; }
+    let startTs = null;
+    let raf;
+    function step(ts) {
+      if (startTs === null) startTs = ts;
+      const progress = Math.min((ts - startTs) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * target));
+      if (progress < 1) raf = requestAnimationFrame(step);
+    }
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+
+  return <span className="font-score">{display}</span>;
+}
 
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1024);
@@ -56,6 +84,17 @@ export default function Home() {
   const [selectedWinners, setSelectedWinners] = useState([]);
   const [note, setNote] = useState('');
   const [tab, setTab] = useState('geral');
+  const [notificacaoSala, setNotificacaoSala] = useState(null);
+
+  useEffect(() => {
+    const channel = getChannel('lobby-global');
+    channel.bind('sala-criada', ({ codigo, criadorNome, criadorId }) => {
+      // Nao mostra pra quem criou a sala
+      if (user && user.id === criadorId) return;
+      setNotificacaoSala({ codigo, criadorNome });
+    });
+    return () => { channel.unbind_all(); };
+  }, [user]);
 
   useEffect(() => {
     let mounted = true;
@@ -122,6 +161,11 @@ export default function Home() {
     return [...PLAYERS].sort((a, b) => stats.wins[b.id] - stats.wins[a.id]);
   }, [stats]);
 
+  const historicoSemana = useMemo(() => {
+    const weekStart = startOfWeek();
+    return matches.filter((m) => m.ts >= weekStart);
+  }, [matches]);
+
   const togglePlayed = (id) => {
     setSelectedPlayed((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
@@ -179,6 +223,63 @@ export default function Home() {
   return (
     <div className="uno-bg relative">
       <FloatingCards />
+
+      {/* Popup flutuante de notificacao de sala */}
+      <AnimatePresence>
+        {notificacaoSala && (
+          <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
+            <motion.div
+              initial={{ y: -40, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -40, opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 220, damping: 22 }}
+              className="w-full max-w-md sm:max-w-xl"
+            >
+              <div className="relative flex flex-col gap-3 rounded-3xl bg-gradient-to-r from-[oklch(0.63_0.24_27)] to-[oklch(0.5_0.2_27)] px-5 py-4 shadow-[0_20px_60px_-15px_oklch(0.63_0.24_27/0.6)] ring-1 ring-white/20 sm:flex-row sm:items-center sm:gap-5 sm:px-7 sm:py-5">
+                <button
+                  onClick={() => setNotificacaoSala(null)}
+                  className="absolute right-3 top-3 rounded-xl p-1.5 text-white/70 transition hover:bg-white/10 hover:text-white sm:hidden"
+                  aria-label="Fechar"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15 sm:h-12 sm:w-12">
+                    <Gamepad2 className="h-5 w-5 text-white sm:h-6 sm:w-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-white sm:text-base" translate="no">
+                      {notificacaoSala.criadorNome}
+                    </p>
+                    <p className="text-xs text-white/80 sm:text-sm">
+                      criou uma sala - bora jogar!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-shrink-0 items-center gap-2 sm:ml-auto">
+                  <button
+                    onClick={() => navigate(`/jogo/${notificacaoSala.codigo}`)}
+                    className="flex-1 rounded-2xl bg-white px-5 py-2.5 text-xs font-black uppercase tracking-wider text-[oklch(0.63_0.24_27)] shadow-lg transition hover:bg-white/90 sm:flex-none sm:text-sm"
+                  >
+                    Entrar
+                  </button>
+                  <button
+                    onClick={() => setNotificacaoSala(null)}
+                    className="hidden rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white sm:block"
+                    aria-label="Fechar"
+                  >
+                    <X className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+
       <main className="relative z-10 mx-auto max-w-5xl px-3 pb-16 pt-6 sm:px-4 sm:pb-24 sm:pt-12">
 
         {/* ===== NAVBAR ===== */}
@@ -188,7 +289,7 @@ export default function Home() {
               onClick={() => navigate('/jogo')}
               className="flex items-center gap-2 rounded-xl bg-[oklch(0.63_0.24_27)] px-3 py-2 text-xs font-bold text-white ring-1 ring-[oklch(0.63_0.24_27)] transition hover:bg-[oklch(0.68_0.24_27)] uppercase tracking-wider"
             >
-              🎮 Jogar
+              Jogar
             </button>
             <button
               onClick={() => navigate('/perfil')}
@@ -214,19 +315,24 @@ export default function Home() {
           transition={{ duration: 0.7 }}
           className="relative mb-8 overflow-hidden rounded-3xl uno-card-surface px-5 py-8 sm:mb-10 sm:px-10 sm:py-14"
         >
+          <div className="hero-sweep" />
           <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-[oklch(0.63_0.24_27)]/40 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-16 -left-16 h-72 w-72 rounded-full bg-[oklch(0.6_0.22_255)]/40 blur-3xl" />
           <div className="pointer-events-none absolute top-1/2 left-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[oklch(0.68_0.2_152)]/15 blur-3xl" />
 
           <div className="relative">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-zinc-400 sm:text-xs sm:tracking-[0.4em]">
-              Placar Oficial
-            </p>
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[oklch(0.86_0.17_85)]" />
+              <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-zinc-400 sm:text-xs sm:tracking-[0.4em]">
+                Placar Oficial
+              </p>
+            </div>
             <motion.h1
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1, type: 'spring', stiffness: 110 }}
               className="mt-2 font-display text-[2.5rem] leading-[0.95] sm:mt-3 sm:text-7xl"
+              style={{ filter: 'drop-shadow(0 8px 24px oklch(0.63 0.24 27 / 0.25))' }}
             >
               <span className="bg-gradient-to-r from-[oklch(0.78_0.2_27)] via-[oklch(0.85_0.18_90)] to-[oklch(0.7_0.22_255)] bg-clip-text text-transparent">
                 Inimigos do Uno
@@ -235,12 +341,13 @@ export default function Home() {
             <p className="mt-2 text-xs text-zinc-400 sm:mt-3 sm:text-sm">O Grupo dos Impossíveis</p>
 
             <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-3 sm:grid-cols-4">
-              <StatTile delay={0.1} label="Partidas" value={matches.length.toString()} />
+              <StatTile delay={0.1} label="Partidas" value={<CountUp value={matches.length} />} accent="amarelo" />
               <StatTile
                 delay={0.2}
                 label="Líder Geral"
-                value={matches.length ? stats.lead.name : '—'}
-                icon={<Trophy className="h-4 w-4 text-[oklch(0.86_0.17_85)]" />}
+                value={matches.length ? stats.lead.name : '?'}
+                icon={<Trophy className="h-3.5 w-3.5" />}
+                accent="amarelo"
               />
               <StatTile
                 delay={0.3}
@@ -248,19 +355,21 @@ export default function Home() {
                 value={
                   Object.values(stats.weekWins).some((v) => v > 0)
                     ? stats.weekLead.name
-                    : '—'
+                    : '?'
                 }
-                icon={<Crown className="h-4 w-4 text-[oklch(0.86_0.17_85)]" />}
+                icon={<Crown className="h-3.5 w-3.5" />}
+                accent="amarelo"
               />
               <StatTile
                 delay={0.4}
                 label="Sequência"
                 value={
                   stats.streaks[stats.topStreak.id] > 0
-                    ? `${stats.topStreak.name} · ${stats.streaks[stats.topStreak.id]}`
-                    : '—'
+                    ? `${stats.topStreak.name}  -  ${stats.streaks[stats.topStreak.id]}`
+                    : '?'
                 }
-                icon={<Flame className="h-4 w-4 text-[oklch(0.63_0.24_27)]" />}
+                icon={<Flame className="h-3.5 w-3.5" />}
+                accent="vermelho"
               />
             </div>
 
@@ -280,7 +389,7 @@ export default function Home() {
 
             <div className="mt-6 inline-flex items-center gap-1.5 text-xs text-zinc-400">
               <ChevronDown className="h-3.5 w-3.5 animate-bounce" />
-              role para ver
+              Role para ver
             </div>
           </div>
         </motion.header>
@@ -501,22 +610,22 @@ export default function Home() {
         </Section>
 
         {/* ===== HISTÓRICO ===== */}
-        <Section title="Histórico" eyebrow="Memória">
+        <Section title="Histórico" eyebrow="Memória da Semana">
           <div className="rounded-2xl uno-card-surface p-4 sm:p-6">
             {loading ? (
               <div className="flex flex-col items-center py-10 text-center text-zinc-400">
                 <History className="mb-3 h-10 w-10 opacity-60 animate-pulse" />
                 <p className="font-medium">Carregando histórico...</p>
               </div>
-            ) : matches.length === 0 ? (
+            ) : historicoSemana.length === 0 ? (
               <div className="flex flex-col items-center py-10 text-center text-zinc-400">
                 <History className="mb-3 h-10 w-10 opacity-60" />
-                <p className="font-medium">Nenhuma partida ainda!</p>
+                <p className="font-medium">Nenhuma partida esta semana ainda!</p>
               </div>
             ) : (
               <ul className="space-y-3">
                 <AnimatePresence initial={false}>
-                  {matches.map((m) => (
+                  {historicoSemana.map((m) => (
                     <motion.li
                       key={m.id}
                       layout
@@ -543,7 +652,7 @@ export default function Home() {
                             })}
                           </div>
                           <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-400">
-                            <span>jogaram:</span>
+                            <span>Jogaram:</span>
                             {m.played.map((id) => {
                               const p = pById(id);
                               return (
@@ -587,19 +696,33 @@ export default function Home() {
   );
 }
 
-function StatTile({ label, value, icon, delay = 0 }) {
+const ACCENT_MAP = {
+  amarelo: { bar: 'bg-[oklch(0.86_0.17_85)]', badge: 'bg-[oklch(0.86_0.17_85)]/15 text-[oklch(0.86_0.17_85)]' },
+  vermelho: { bar: 'bg-[oklch(0.63_0.24_27)]', badge: 'bg-[oklch(0.63_0.24_27)]/15 text-[oklch(0.75_0.2_27)]' },
+  azul: { bar: 'bg-[oklch(0.6_0.22_255)]', badge: 'bg-[oklch(0.6_0.22_255)]/15 text-[oklch(0.68_0.2_255)]' },
+  verde: { bar: 'bg-[oklch(0.68_0.2_152)]', badge: 'bg-[oklch(0.68_0.2_152)]/15 text-[oklch(0.72_0.18_152)]' },
+};
+
+function StatTile({ label, value, icon, delay = 0, accent = 'amarelo' }) {
+  const a = ACCENT_MAP[accent] || ACCENT_MAP.amarelo;
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/10 backdrop-blur sm:p-4"
+      whileHover={{ y: -3 }}
+      className="group relative overflow-hidden rounded-2xl bg-white/[0.04] p-3 pl-4 ring-1 ring-white/10 backdrop-blur transition-colors hover:bg-white/[0.06] sm:p-4 sm:pl-5"
     >
-      <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-widest text-zinc-400 sm:gap-1.5 sm:text-[10px]">
-        {icon}
+      <span className={`absolute left-0 top-0 h-full w-[3px] ${a.bar} opacity-70`} />
+      <p className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-widest text-zinc-400 sm:text-[10px]">
+        {icon && (
+          <span className={`flex h-4 w-4 items-center justify-center rounded-full ${a.badge}`}>
+            {icon}
+          </span>
+        )}
         {label}
       </p>
-      <p className="mt-1 truncate font-display text-xl sm:text-2xl" translate="no">{value}</p>
+      <p className="mt-1.5 truncate font-display text-xl leading-none sm:text-2xl" translate="no">{value}</p>
     </motion.div>
   );
 }
@@ -615,7 +738,8 @@ function Section({ title, eyebrow, icon, children }) {
     >
       <div className="mb-3 flex items-end justify-between sm:mb-4">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-zinc-400 sm:text-[11px] sm:tracking-[0.35em]">
+          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-zinc-400 sm:text-[11px] sm:tracking-[0.35em]">
+            <span className="h-px w-4 bg-[oklch(0.63_0.24_27)]/70 sm:w-5" />
             {eyebrow}
           </p>
           <h2 className="font-display text-2xl flex items-center gap-2 sm:text-4xl sm:gap-3">
@@ -630,24 +754,25 @@ function Section({ title, eyebrow, icon, children }) {
 }
 
 function PlayerRow({ player, wins, rank, label, index = 0, isDesktop = true }) {
-  const medals = ['1º', '2º', '3º'];
+  const medals = ['1o', '2o', '3o'];
   const isTop = rank === 0 && wins > 0;
   return (
     <motion.div
       initial={{ opacity: 0, x: -16 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.06 }}
-      whileHover={isDesktop ? { x: 4 } : {}}
-      className={`grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-2xl p-3 transition-colors sm:gap-4 sm:p-4 ${
+      whileHover={isDesktop ? { x: 4, y: -1 } : {}}
+      className={`relative grid grid-cols-[auto_1fr_auto] items-center gap-3 overflow-hidden rounded-2xl p-3 transition-colors sm:gap-4 sm:p-4 ${
         isTop
-          ? 'uno-card-surface ring-1 ring-[oklch(0.86_0.17_85)]/50'
+          ? 'uno-card-surface pulse-gold ring-1 ring-[oklch(0.86_0.17_85)]/50'
           : 'bg-[oklch(0.22_0.035_265)]/50 ring-1 ring-white/5 hover:ring-white/15'
       }`}
     >
+      {isTop && <span className="absolute left-0 top-0 h-full w-[3px] bg-[oklch(0.86_0.17_85)]" />}
       <div className="flex items-center gap-2 sm:gap-3">
         <UnoChip color={player.color} label={player.name[0]} sm />
         <span className="w-7 text-center font-display text-base text-zinc-400 sm:w-8 sm:text-lg">
-          {medals[rank] ?? `${rank + 1}º`}
+          {medals[rank] ?? `${rank + 1}o`}
         </span>
       </div>
       <div className="min-w-0">
@@ -662,7 +787,7 @@ function PlayerRow({ player, wins, rank, label, index = 0, isDesktop = true }) {
         )}
       </div>
       <div className="text-right">
-        <p className="font-display text-2xl leading-none sm:text-3xl">{wins}</p>
+        <p className="font-display font-score text-2xl leading-none sm:text-3xl">{wins}</p>
         <p className="text-[9px] uppercase tracking-widest text-zinc-400 sm:text-[10px]">vitórias</p>
       </div>
     </motion.div>

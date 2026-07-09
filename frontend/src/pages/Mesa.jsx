@@ -633,7 +633,7 @@ export default function Mesa() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="mb-1 bg-[oklch(0.18_0.03_265)]/90 backdrop-blur-sm rounded-xl px-3 py-2 ring-1 ring-white/10"
+              className="mb-1 bg-[oklch(0.18_0.03_265)]/90 lg:backdrop-blur-sm rounded-xl px-3 py-2 ring-1 ring-white/10"
             >
               <span className="text-[10px] font-bold text-zinc-400" translate="no">{m.nome}: </span>
               <span className="text-xs text-white">{m.texto}</span>
