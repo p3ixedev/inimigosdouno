@@ -211,12 +211,17 @@
   animation: foil-sweep 2.4s cubic-bezier(0.22, 1, 0.36, 1) 0.35s 1 both;
 }
 
-/* Cinematic vignette - darkens the hero's edges so the eye is pulled to center, like a spotlight on the table */
+/* Cinematic vignette - opens like a spotlight turning on, choreographed with the rest of the hero's entrance */
+@keyframes spotlight-reveal {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
 .hero-spotlight {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: radial-gradient(ellipse 130% 90% at 50% 0%, transparent 35%, oklch(0.08 0.02 264 / 0.6) 100%);
+  animation: spotlight-reveal 1.2s ease-out both;
 }
 
 /* Decorative dealt-card accents in the hero: gentle continuous breathing after they land (applied to an inner element so it never fights the outer entrance transform) */
@@ -226,6 +231,49 @@
 }
 .dealt-card-breathe {
   animation: card-breathe 5s ease-in-out infinite;
+}
+
+/* Mesa de jogo - superficie com profundidade real, como olhar para uma mesa de feltro por cima */
+.game-table {
+  background: radial-gradient(ellipse at center, oklch(0.28 0.06 152 / 0.28) 0%, oklch(0.28 0.06 152 / 0.08) 45%, transparent 72%);
+  box-shadow:
+    inset 0 24px 60px -20px oklch(0 0 0 / 0.55),
+    inset 0 -16px 50px -20px oklch(0 0 0 / 0.4);
+}
+
+/* Anel de turno - brilho na cor do jogador ativo, anima apenas opacidade (barato para repintar) */
+@keyframes turn-glow-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.9; }
+}
+.turn-glow {
+  position: relative;
+}
+.turn-glow::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 1.5px var(--turn-color, oklch(0.86 0.17 85)), 0 0 22px 1px var(--turn-color, oklch(0.86 0.17 85));
+  opacity: 0.55;
+  animation: turn-glow-pulse 1.7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Acabamento das cartas - relevo sutil e overflow controlado */
+.card-face {
+  overflow: hidden;
+  transform-style: flat;
+}
+
+/* Brilho diagonal na carta do topo da pilha - a "estrela" da mesa */
+.card-sheen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 38%, oklch(1 0 0 / 0.16) 50%, transparent 62%);
+  pointer-events: none;
 }
 
 /* Scrollbar */
@@ -254,7 +302,7 @@ textarea:focus-visible {
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .anim-float-1, .anim-float-2, .anim-float-3, .pulse-gold::after, .foil-text, .dealt-card-breathe {
+  .anim-float-1, .anim-float-2, .anim-float-3, .pulse-gold::after, .foil-text, .dealt-card-breathe, .turn-glow::after {
     animation: none !important;
   }
   .foil-text {
