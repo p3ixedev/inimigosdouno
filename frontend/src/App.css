@@ -187,23 +187,45 @@
   animation: section-in 0.7s ease-out both;
 }
 
-/* Signature hero light sweep - a thin gold line that glides across the top edge */
-@keyframes hero-sweep {
-  0%   { transform: translateX(-120%); opacity: 0; }
-  15%  { opacity: 1; }
-  85%  { opacity: 1; }
-  100% { transform: translateX(120%); opacity: 0; }
+/* Signature headline treatment: a holographic foil sweep across the title, like light catching a premium card - plays once on load, then settles */
+@keyframes foil-sweep {
+  from { background-position: 115% 50%; }
+  to   { background-position: -15% 50%; }
 }
-.hero-sweep {
+.foil-text {
+  background-image: linear-gradient(
+    100deg,
+    oklch(0.72 0.21 27) 0%,
+    oklch(0.86 0.17 85) 22%,
+    oklch(0.96 0.05 95) 32%,
+    oklch(0.86 0.17 85) 42%,
+    oklch(0.68 0.2 152) 58%,
+    oklch(0.68 0.21 255) 74%,
+    oklch(0.72 0.21 27) 100%
+  );
+  background-size: 260% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: foil-sweep 2.4s cubic-bezier(0.22, 1, 0.36, 1) 0.35s 1 both;
+}
+
+/* Cinematic vignette - darkens the hero's edges so the eye is pulled to center, like a spotlight on the table */
+.hero-spotlight {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 35%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, oklch(0.86 0.17 85 / 0.9), transparent);
-  animation: hero-sweep 4.5s ease-in-out infinite;
-  animation-delay: 1s;
+  inset: 0;
   pointer-events: none;
+  background: radial-gradient(ellipse 130% 90% at 50% 0%, transparent 35%, oklch(0.08 0.02 264 / 0.6) 100%);
+}
+
+/* Decorative dealt-card accents in the hero: gentle continuous breathing after they land (applied to an inner element so it never fights the outer entrance transform) */
+@keyframes card-breathe {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+.dealt-card-breathe {
+  animation: card-breathe 5s ease-in-out infinite;
 }
 
 /* Scrollbar */
@@ -232,7 +254,10 @@ textarea:focus-visible {
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .anim-float-1, .anim-float-2, .anim-float-3, .pulse-gold::after, .hero-sweep {
+  .anim-float-1, .anim-float-2, .anim-float-3, .pulse-gold::after, .foil-text, .dealt-card-breathe {
     animation: none !important;
+  }
+  .foil-text {
+    background-position: 20% 50%;
   }
 }

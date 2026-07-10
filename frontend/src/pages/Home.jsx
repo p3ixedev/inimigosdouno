@@ -61,6 +61,45 @@ function CountUp({ value, duration = 1100 }) {
   return <span className="font-score">{display}</span>;
 }
 
+const DEALT_CARD_COLORS = {
+  vermelho: 'oklch(0.63 0.24 27)',
+  azul: 'oklch(0.6 0.22 255)',
+  verde: 'oklch(0.68 0.2 152)',
+  amarelo: 'oklch(0.85 0.18 90)',
+};
+
+// Carta decorativa que "e distribuida" na cena do heroi - o momento de assinatura visual
+function DealtCard({ color, value, x, y, rotate, delay, size = 'normal' }) {
+  const dims = size === 'small' ? 'h-16 w-11 sm:h-20 sm:w-14' : 'h-20 w-14 sm:h-28 sm:w-20';
+  const fontSize = size === 'small' ? 'text-lg sm:text-xl' : 'text-2xl sm:text-4xl';
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: x * 2.6, y: -90, rotate: rotate * 4, scale: 0.55 }}
+      animate={{ opacity: 0.94, x, y, rotate, scale: 1 }}
+      transition={{ delay, type: 'spring', stiffness: 130, damping: 15 }}
+      className="pointer-events-none absolute left-1/2 top-0"
+    >
+      <div className="dealt-card-breathe">
+        <div
+          className={`relative ${dims} rounded-xl border-2 border-white/25 shadow-2xl`}
+          style={{ background: DEALT_CARD_COLORS[color] }}
+        >
+          <div
+            className="absolute inset-[14%] opacity-45"
+            style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '50% / 60%', transform: 'rotate(-20deg)' }}
+          />
+          <span
+            className={`font-display relative flex h-full items-center justify-center text-white ${fontSize}`}
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.55)' }}
+          >
+            {value}
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1024);
   useEffect(() => {
@@ -315,10 +354,15 @@ export default function Home() {
           transition={{ duration: 0.7 }}
           className="relative mb-8 overflow-hidden rounded-3xl uno-card-surface px-5 py-8 sm:mb-10 sm:px-10 sm:py-14"
         >
-          <div className="hero-sweep" />
+          <div className="hero-spotlight" />
           <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-[oklch(0.63_0.24_27)]/40 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-16 -left-16 h-72 w-72 rounded-full bg-[oklch(0.6_0.22_255)]/40 blur-3xl" />
           <div className="pointer-events-none absolute top-1/2 left-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[oklch(0.68_0.2_152)]/15 blur-3xl" />
+
+          {/* Cartas distribuidas - o momento de assinatura visual do heroi */}
+          <DealtCard color="vermelho" value="7" x={125} y={12} rotate={16} delay={0.15} />
+          <DealtCard color="azul" value="R" x={-145} y={58} rotate={-20} delay={0.3} size="small" />
+          <DealtCard color="amarelo" value="+2" x={150} y={98} rotate={-14} delay={0.45} size="small" />
 
           <div className="relative">
             <div className="flex items-center gap-2">
@@ -331,10 +375,10 @@ export default function Home() {
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1, type: 'spring', stiffness: 110 }}
-              className="mt-2 font-display text-[2.5rem] leading-[0.95] sm:mt-3 sm:text-7xl"
-              style={{ filter: 'drop-shadow(0 8px 24px oklch(0.63 0.24 27 / 0.25))' }}
+              className="mt-2 font-display text-[2.5rem] leading-[0.95] sm:mt-3 sm:text-7xl lg:text-8xl"
+              style={{ filter: 'drop-shadow(0 10px 28px oklch(0.63 0.24 27 / 0.3))' }}
             >
-              <span className="bg-gradient-to-r from-[oklch(0.78_0.2_27)] via-[oklch(0.85_0.18_90)] to-[oklch(0.7_0.22_255)] bg-clip-text text-transparent">
+              <span className="foil-text">
                 Inimigos do Uno
               </span>
             </motion.h1>
