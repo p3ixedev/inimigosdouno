@@ -1,74 +1,86 @@
-/* Inimigos do Uno - Custom Styles */
+/* =============================================
+   INIMIGOS DO UNO — Design System v2
+   Premium Dark Gaming Interface
+   ============================================= */
 
 .App {
   min-height: 100vh;
 }
 
-/* Background gradient (radial UNO red/blue glows) */
+/* ---- Background ---- */
 .uno-bg {
   background:
-    radial-gradient(ellipse at top, oklch(0.25 0.06 27 / 0.55), transparent 60%),
-    radial-gradient(ellipse at bottom, oklch(0.22 0.08 255 / 0.45), transparent 60%),
-    linear-gradient(180deg, oklch(0.14 0.03 265), oklch(0.18 0.04 265));
-  background-attachment: scroll;
+    radial-gradient(ellipse 80% 50% at 10% 0%,   rgba(220,55,50,0.12)  0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 90% 100%, rgba(50,110,220,0.10)  0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 50% 50%,  rgba(20,22,38,0.0)    0%, transparent 100%),
+    linear-gradient(180deg, #0b0c14 0%, #0e101c 100%);
   min-height: 100vh;
 }
 
-/* Card surface with glass-morph */
+/* ---- Glass card surface ---- */
 .uno-card-surface {
-  background: linear-gradient(145deg, oklch(0.24 0.04 265 / 0.9), oklch(0.2 0.035 265 / 0.95));
-  border: 1px solid oklch(1 0 0 / 0.08);
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  border: 1px solid rgba(255,255,255,0.07);
   box-shadow:
-    0 8px 30px -10px oklch(0 0 0 / 0.5),
-    inset 0 1px 0 0 oklch(1 0 0 / 0.06);
+    0 1px 0 0 rgba(255,255,255,0.06) inset,
+    0 20px 40px -20px rgba(0,0,0,0.6),
+    0 4px 12px -4px rgba(0,0,0,0.4);
 }
 
-/* backdrop-filter apenas no desktop para não travar o scroll mobile */
 @media (min-width: 1024px) {
   .uno-card-surface {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 }
 
-/* UNO Chip (card-like) */
+/* ---- UNO Card Chip ---- */
 .uno-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2.75rem;
   height: 3.5rem;
-  border-radius: 0.6rem;
+  border-radius: 0.625rem;
   font-family: 'Bebas Neue', Impact, sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   color: white;
-  box-shadow:
-    inset 0 -3px 0 oklch(0 0 0 / 0.25),
-    inset 0 2px 0 oklch(1 0 0 / 0.2),
-    0 4px 14px -4px oklch(0 0 0 / 0.5);
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  flex-shrink: 0;
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.28),
+    inset 0 2px 0 rgba(255,255,255,0.22),
+    0 6px 20px -6px rgba(0,0,0,0.6);
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
 }
 .uno-chip:hover {
-  transform: translateY(-2px) rotate(-3deg);
+  transform: translateY(-3px) rotate(-4deg);
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.28),
+    inset 0 2px 0 rgba(255,255,255,0.22),
+    0 12px 28px -6px rgba(0,0,0,0.7);
 }
 
 .uno-chip-sm {
   width: 2rem;
   height: 2.6rem;
   border-radius: 0.45rem;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
-/* Oval white center on a real UNO card */
+/* White oval oval on chip (UNO authentic look) */
 .uno-chip::before {
   content: "";
   position: absolute;
-  inset: 18% 8%;
-  background: rgba(255, 255, 255, 0.18);
+  inset: 16% 8%;
+  background: rgba(255,255,255,0.16);
   border-radius: 50% / 60%;
-  transform: rotate(-22deg);
+  transform: rotate(-20deg);
   z-index: 0;
 }
 .uno-chip > * {
@@ -76,90 +88,193 @@
   z-index: 1;
 }
 
-/* Display font helpers */
+/* ---- Display font ---- */
 .font-display {
   font-family: 'Bebas Neue', Impact, sans-serif;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 
-/* Background floating UNO cards */
+/* ---- Floating background cards ---- */
 .floating-card {
   position: absolute;
-  width: 70px;
-  height: 100px;
-  border-radius: 12px;
-  box-shadow:
-    inset 0 -4px 0 oklch(0 0 0 / 0.3),
-    inset 0 2px 0 oklch(1 0 0 / 0.18),
-    0 10px 30px -6px oklch(0 0 0 / 0.5);
-  opacity: 0.5;
-  filter: blur(0.3px);
+  width: 64px;
+  height: 92px;
+  border-radius: 10px;
+  opacity: 0.18;
+  filter: blur(0.5px);
   pointer-events: none;
   will-change: transform;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 8px 24px -8px rgba(0,0,0,0.5);
 }
 .floating-card::before {
   content: "";
   position: absolute;
-  inset: 18% 12%;
-  background: rgba(255, 255, 255, 0.22);
+  inset: 16% 10%;
+  background: rgba(255,255,255,0.18);
   border-radius: 50% / 60%;
-  transform: rotate(-22deg);
+  transform: rotate(-20deg);
 }
 
-/* Pulse glow animation for first place */
+/* ---- Premium button glow ---- */
+.btn-primary-glow {
+  box-shadow:
+    0 0 0 1px rgba(220,55,50,0.3),
+    0 8px 24px -8px rgba(220,55,50,0.5);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+.btn-primary-glow:hover {
+  box-shadow:
+    0 0 0 1px rgba(220,55,50,0.5),
+    0 12px 32px -8px rgba(220,55,50,0.7);
+  transform: translateY(-1px);
+}
+
+/* ---- Glow ring for active turn ---- */
+.turn-glow {
+  box-shadow:
+    0 0 0 2px rgba(251,191,36,0.6),
+    0 0 24px -4px rgba(251,191,36,0.4);
+}
+
+/* ---- Pulse gold for first place ---- */
 @keyframes pulse-glow-gold {
-  0%, 100% { box-shadow: 0 0 30px -4px oklch(0.82 0.16 85 / 0.5); }
-  50%      { box-shadow: 0 0 55px 2px  oklch(0.82 0.16 85 / 0.85); }
+  0%,100% { box-shadow: 0 0 20px -4px rgba(251,191,36,0.4); }
+  50%      { box-shadow: 0 0 40px 2px  rgba(251,191,36,0.7); }
 }
-.pulse-gold {
-  animation: pulse-glow-gold 2.5s ease-in-out infinite;
-}
+.pulse-gold { animation: pulse-glow-gold 2.5s ease-in-out infinite; }
 
-/* Floating card animations */
+/* ---- Floating card animations ---- */
 @keyframes float-1 {
-  0%, 100% { transform: translate(0,0) rotate(-12deg); }
-  50%      { transform: translate(20px,-20px) rotate(-8deg); }
+  0%,100% { transform: translate(0,0) rotate(-14deg); }
+  50%      { transform: translate(18px,-22px) rotate(-9deg); }
 }
 @keyframes float-2 {
-  0%, 100% { transform: translate(0,0) rotate(8deg); }
-  50%      { transform: translate(-25px,15px) rotate(14deg); }
+  0%,100% { transform: translate(0,0) rotate(10deg); }
+  50%      { transform: translate(-22px,18px) rotate(16deg); }
 }
 @keyframes float-3 {
-  0%, 100% { transform: translate(0,0) rotate(-4deg); }
-  50%      { transform: translate(15px,25px) rotate(2deg); }
+  0%,100% { transform: translate(0,0) rotate(-5deg); }
+  50%      { transform: translate(12px,26px) rotate(3deg); }
 }
-.anim-float-1 { animation: float-1 9s ease-in-out infinite; }
-.anim-float-2 { animation: float-2 11s ease-in-out infinite; }
-.anim-float-3 { animation: float-3 8s ease-in-out infinite; }
+.anim-float-1 { animation: float-1 10s ease-in-out infinite; }
+.anim-float-2 { animation: float-2 13s ease-in-out infinite; }
+.anim-float-3 { animation: float-3  9s ease-in-out infinite; }
 
-/* Confetti / sparkle hint */
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25%      { transform: rotate(-6deg); }
-  75%      { transform: rotate(6deg); }
-}
-.wiggle-hover:hover { animation: wiggle 0.6s ease-in-out; }
-
-/* Section reveal */
+/* ---- Section entrance animation ---- */
 @keyframes section-in {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.reveal {
-  animation: section-in 0.7s ease-out both;
+.reveal { animation: section-in 0.6s ease-out both; }
+
+/* ---- Shimmer loading ---- */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.1) 50%,
+    rgba(255,255,255,0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 10px; height: 10px; }
+/* ---- UNO declaration animation ---- */
+@keyframes uno-burst {
+  0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+  50%  { transform: scale(1.25) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.uno-burst { animation: uno-burst 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+/* ---- Card deal animation ---- */
+@keyframes card-deal {
+  from { transform: translateY(40px) scale(0.7); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+.card-deal { animation: card-deal 0.3s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+/* ---- Gradient text utility ---- */
+.text-gradient-uno {
+  background: linear-gradient(135deg,
+    hsl(10,82%,68%) 0%,
+    hsl(44,95%,68%) 40%,
+    hsl(220,80%,68%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---- Divider with glow ---- */
+.divider-glow {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+
+/* ---- Notification badge ---- */
+.notif-badge {
+  background: linear-gradient(135deg, hsl(10,82%,56%), hsl(10,82%,45%));
+  box-shadow: 0 4px 16px -4px rgba(220,55,50,0.6);
+}
+
+/* ---- Rank bar gradient ---- */
+.rank-bar-1 { background: linear-gradient(180deg, hsl(44,88%,58%), hsl(38,78%,42%)); }
+.rank-bar-2 { background: linear-gradient(180deg, hsl(220,10%,74%), hsl(220,8%,50%)); }
+.rank-bar-3 { background: linear-gradient(180deg, hsl(30,60%,54%), hsl(24,48%,38%)); }
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.3 0.04 265);
-  border-radius: 8px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 6px;
 }
-::-webkit-scrollbar-thumb:hover { background: oklch(0.4 0.05 265); }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 
-/* Selection */
+/* ---- Selection ---- */
 ::selection {
-  background: oklch(0.63 0.24 27 / 0.5);
+  background: rgba(220,55,50,0.4);
   color: white;
+}
+
+/* ---- Input color scheme dark ---- */
+input[type="text"], textarea { color-scheme: dark; }
+
+/* ---- Noise texture overlay (subtle depth) ---- */
+.noise-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.5;
+}
+
+/* ---- Responsive card hand container ---- */
+.card-hand {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 8px 4px 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.card-hand::-webkit-scrollbar { display: none; }
+.card-hand > * { scroll-snap-align: start; }
+
+/* ---- Status glow dots ---- */
+.status-online {
+  background: hsl(142,64%,48%);
+  box-shadow: 0 0 8px hsl(142,64%,48%);
+}
+.status-away {
+  background: hsl(44,95%,58%);
+  box-shadow: 0 0 8px hsl(44,95%,58%);
 }
