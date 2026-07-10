@@ -415,6 +415,7 @@ export default function Mesa() {
       return () => clearTimeout(t);
     }
     prevTopoIdRef.current = topo.id;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topo?.id]);
 
   let viewKey = 'jogo';
