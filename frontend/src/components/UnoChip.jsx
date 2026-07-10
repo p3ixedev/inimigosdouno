@@ -1,15 +1,18 @@
 import React from 'react';
-import { COLOR_STYLES } from '../data/players';
 
-export default function UnoChip({ color, label, sm = false }) {
-  const isWhite = color === 'white';
+const COLOR_MAP = {
+  red:    { cls: 'uno-color-red',    text: 'text-white' },
+  blue:   { cls: 'uno-color-blue',   text: 'text-white' },
+  green:  { cls: 'uno-color-green',  text: 'text-white' },
+  yellow: { cls: 'uno-color-yellow', text: 'text-white' },
+  white:  { cls: 'uno-color-white',  text: 'text-[#1a1d2e]' },
+};
+
+export default function UnoChip({ color = 'red', label, sm = false }) {
+  const { cls, text } = COLOR_MAP[color] || COLOR_MAP.red;
   return (
-    <span
-      className={`uno-chip ${sm ? 'uno-chip-sm' : ''} ${COLOR_STYLES[color].bg} ${
-        isWhite ? 'text-[oklch(0.2_0.04_265)]' : 'text-white'
-      }`}
-    >
-      <span className="relative font-display font-extrabold">{label}</span>
+    <span className={`uno-chip ${sm ? 'uno-chip-sm' : ''} ${cls} ${text}`}>
+      <span className="font-display font-extrabold select-none">{label}</span>
     </span>
   );
 }

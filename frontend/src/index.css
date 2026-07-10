@@ -9,81 +9,59 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #0b0c14;
-  color: #f0f2fa;
+  background: #070810;
+  color: #edf0fa;
 }
 
 @layer base {
   :root {
-    /* Background layers */
-    --background:    224 22% 8%;
-    --surface:       224 18% 12%;
-    --surface-2:     224 16% 15%;
-    --surface-3:     224 14% 18%;
+    /* ── Core backgrounds ── */
+    --background:    228 28% 5%;
+    --surface:       228 22% 9%;
+    --surface-2:     228 20% 12%;
+    --surface-3:     228 18% 15%;
 
-    /* Foreground */
-    --foreground:    220 15% 96%;
-    --muted-fg:      220 8% 55%;
-    --subtle-fg:     220 6% 38%;
+    /* ── Text ── */
+    --foreground:       220 18% 96%;
+    --muted-foreground: 220 10% 52%;
+    --subtle:           220 8%  38%;
 
-    /* Brand — UNO Red */
-    --primary:       10 82% 58%;
-    --primary-light: 10 82% 68%;
-    --primary-dark:  10 82% 45%;
-    --primary-foreground: 0 0% 100%;
+    /* ── Brand: UNO Red ── */
+    --primary:             8 86% 56%;
+    --primary-light:       8 86% 68%;
+    --primary-dark:        8 86% 38%;
+    --primary-foreground:  0  0% 100%;
 
-    /* UNO accent colors */
-    --uno-red:    10 82% 56%;
+    /* ── UNO palette ── */
+    --uno-red:    8  86% 56%;
     --uno-blue:   220 80% 58%;
-    --uno-green:  142 64% 48%;
-    --uno-yellow: 44 95% 58%;
+    --uno-green:  142 62% 46%;
+    --uno-yellow: 42  92% 54%;
 
-    /* Gold / trophy */
-    --gold: 42 88% 60%;
+    /* ── Gold / Trophy ── */
+    --gold:        44 90% 58%;
+    --gold-dark:   38 78% 38%;
 
-    /* Semantic tokens (shadcn compat) */
-    --card:             224 18% 12%;
-    --card-foreground:  220 15% 96%;
-    --popover:          224 16% 13%;
-    --popover-foreground: 220 15% 96%;
-    --secondary:        224 16% 17%;
+    /* ── shadcn compatibility ── */
+    --card:               228 22% 9%;
+    --card-foreground:    220 18% 96%;
+    --popover:            228 20% 11%;
+    --popover-foreground: 220 18% 96%;
+    --secondary:          228 18% 14%;
     --secondary-foreground: 220 10% 75%;
-    --muted:            224 14% 20%;
-    --muted-foreground: 220 8% 55%;
-    --accent:           224 14% 22%;
-    --accent-foreground: 220 15% 96%;
-    --destructive:      10 82% 56%;
+    --muted:              228 16% 18%;
+    --accent:             228 16% 20%;
+    --accent-foreground:  220 18% 96%;
+    --destructive:        8  86% 56%;
     --destructive-foreground: 0 0% 100%;
-    --border:           224 12% 22%;
-    --input:            224 16% 17%;
-    --ring:             10 82% 58%;
-    --radius:           0.75rem;
-  }
-
-  .dark {
-    --background:    224 22% 8%;
-    --foreground:    220 15% 96%;
-    --card:          224 18% 12%;
-    --card-foreground: 220 15% 96%;
-    --popover:       224 16% 13%;
-    --popover-foreground: 220 15% 96%;
-    --primary:       10 82% 58%;
-    --primary-foreground: 0 0% 100%;
-    --secondary:     224 16% 17%;
-    --secondary-foreground: 220 10% 75%;
-    --muted:         224 14% 20%;
-    --muted-foreground: 220 8% 55%;
-    --accent:        224 14% 22%;
-    --accent-foreground: 220 15% 96%;
-    --destructive:   10 82% 56%;
-    --destructive-foreground: 0 0% 100%;
-    --border:        224 12% 22%;
-    --input:         224 16% 17%;
-    --ring:          10 82% 58%;
+    --border:             228 14% 20%;
+    --input:              228 18% 14%;
+    --ring:               8  86% 56%;
+    --radius:             0.875rem;
   }
 }
 
 @layer base {
-  * { @apply border-border; }
+  * { @apply border-border; box-sizing: border-box; }
   body { @apply bg-background text-foreground; }
 }
