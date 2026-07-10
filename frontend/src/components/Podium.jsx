@@ -44,7 +44,7 @@ export default function Podium({ ranking, wins }) {
   if (top3.length >= 3) podiumSlots.push({ player: top3[2], pos: 3 });
 
   return (
-    <div className="mb-6 rounded-2xl uno-card-surface p-4 sm:p-6">
+    <div className="mb-6 rounded-2xl glass p-4 sm:p-6">
       <div className="mb-4 text-center">
         <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-muted-foreground mb-1">
           Classificação
