@@ -1,3 +1,17 @@
+// ============================================================
+// Home.jsx — REDESIGN "HUB CENTRAL" (pós-login)
+//
+// IMPORTANTE: 100% da lógica original foi preservada:
+//  - Pusher (lobby-global / sala-criada), fetchMatches,
+//    createMatch, deleteMatch
+//  - Todos os useMemo (stats, rivalries, ranking, historicoSemana)
+//  - Registrar partida (togglePlayed / toggleWinner / submit)
+//  - Estados, fluxos e navegação idênticos
+//
+// Apenas a camada visual foi refeita para alinhar com a
+// linguagem do Lobby, Sala de Espera, Mesa e Perfil.
+// ============================================================
+
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,12 +30,19 @@ import {
   Swords,
   Flame,
   History,
-  ChevronDown,
   Trash2,
   User,
   LogOut,
   X,
   Gamepad2,
+  Play,
+  Plus,
+  KeyRound,
+  ArrowRight,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Medal,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -205,6 +226,36 @@ export default function Home() {
     return matches.filter((m) => m.ts >= weekStart);
   }, [matches]);
 
+  // ===== PERFIL RÁPIDO — derivado apenas dos dados já carregados (visual) =====
+  const myStats = useMemo(() => {
+    if (!user) return null;
+    const id = user.id;
+    const played = matches.filter((m) => m.played.includes(id));
+    const won = matches.filter((m) => m.winners.includes(id));
+    const winRate = played.length > 0 ? Math.round((won.length / played.length) * 100) : 0;
+    const rankPos = ranking.findIndex((p) => p.id === id);
+    const rankLabel =
+      won.length >= 30 ? 'Lenda da Mesa' :
+      won.length >= 15 ? 'Mestre do Baralho' :
+      won.length >= 5  ? 'Veterano' :
+      won.length >= 1  ? 'Desafiante' :
+      'Novato';
+    return {
+      partidas: played.length,
+      vitorias: won.length,
+      winRate,
+      sequencia: stats.streaks[id] ?? 0,
+      rankPos: rankPos >= 0 ? rankPos + 1 : null,
+      rankLabel,
+    };
+  }, [matches, user, ranking, stats]);
+
+  // Últimas partidas para o card de atividade recente
+  const atividadeRecente = useMemo(
+    () => [...matches].sort((a, b) => b.ts - a.ts).slice(0, 3),
+    [matches]
+  );
+
   const togglePlayed = (id) => {
     setSelectedPlayed((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
@@ -258,6 +309,12 @@ export default function Home() {
     'Vitórias': stats.wins[p.id],
     'Semana': stats.weekWins[p.id],
   }));
+
+  const scrollTo = (elId) => {
+    document.getElementById(elId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const playerData = user ? PLAYERS.find((p) => p.id === user.id) : null;
 
   return (
     <div className="uno-bg relative">
@@ -318,57 +375,62 @@ export default function Home() {
         )}
       </AnimatePresence>
 
+      <main className="relative z-10 mx-auto max-w-6xl px-3 pb-16 pt-5 sm:px-4 sm:pb-24 sm:pt-8">
 
-      <main className="relative z-10 mx-auto max-w-5xl px-3 pb-16 pt-6 sm:px-4 sm:pb-24 sm:pt-12">
-
-        {/* ===== NAVBAR ===== */}
+        {/* ===== TOPBAR ===== */}
         {user && (
-          <div className="mb-4 flex items-center justify-end gap-2">
-            <button
-              onClick={() => navigate('/jogo')}
-              className="flex items-center gap-2 rounded-xl bg-[oklch(0.63_0.24_27)] px-3 py-2 text-xs font-bold text-white ring-1 ring-[oklch(0.63_0.24_27)] transition hover:bg-[oklch(0.68_0.24_27)] uppercase tracking-wider"
-            >
-              Jogar
-            </button>
-            <button
-              onClick={() => navigate('/perfil')}
-              className="flex items-center gap-2 rounded-xl bg-[oklch(0.22_0.035_265)]/60 px-3 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 transition hover:ring-white/25"
-            >
-              <User className="h-3.5 w-3.5" />
-              <span translate="no">{user.name}</span>
-            </button>
-            <button
-              onClick={() => { logout(); navigate('/entrar'); }}
-              className="flex items-center gap-1.5 rounded-xl bg-[oklch(0.22_0.035_265)]/60 px-3 py-2 text-xs text-zinc-400 ring-1 ring-white/10 transition hover:text-[oklch(0.78_0.2_27)] hover:ring-white/25"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Sair
-            </button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 flex items-center justify-between gap-2 sm:mb-8"
+          >
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[oklch(0.86_0.17_85)]" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-zinc-400 sm:text-xs">
+                Hub Central
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/perfil')}
+                className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-white/10 hover:text-white"
+              >
+                <User className="h-3.5 w-3.5" />
+                <span translate="no">{user.name}</span>
+              </button>
+              <button
+                onClick={() => { logout(); navigate('/entrar'); }}
+                className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-[oklch(0.63_0.24_27)]/20 hover:text-[oklch(0.82_0.18_27)] hover:ring-[oklch(0.63_0.24_27)]/40"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sair
+              </button>
+            </div>
+          </motion.div>
         )}
 
-        {/* ===== HERO ===== */}
+        {/* ===== HERO / LAUNCHER ===== */}
         <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="relative mb-8 overflow-hidden rounded-3xl uno-card-surface px-5 py-8 sm:mb-10 sm:px-10 sm:py-14"
+          className="relative mb-6 overflow-hidden rounded-3xl uno-card-surface px-5 py-9 sm:mb-8 sm:px-10 sm:py-14"
         >
           <div className="hero-spotlight" />
           <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-[oklch(0.63_0.24_27)]/40 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-16 -left-16 h-72 w-72 rounded-full bg-[oklch(0.6_0.22_255)]/40 blur-3xl" />
           <div className="pointer-events-none absolute top-1/2 left-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[oklch(0.68_0.2_152)]/15 blur-3xl" />
 
-          {/* Cartas distribuidas - o momento de assinatura visual do heroi */}
-          <DealtCard color="vermelho" value="7" x={125} y={12} rotate={16} delay={0.15} />
-          <DealtCard color="azul" value="R" x={-145} y={58} rotate={-20} delay={0.3} size="small" />
-          <DealtCard color="amarelo" value="+2" x={150} y={98} rotate={-14} delay={0.45} size="small" />
+          {/* Cartas distribuidas - assinatura visual do heroi */}
+          <DealtCard color="vermelho" value="7" x={135} y={8} rotate={16} delay={0.15} />
+          <DealtCard color="azul" value="R" x={-155} y={54} rotate={-20} delay={0.3} size="small" />
+          <DealtCard color="amarelo" value="+2" x={165} y={96} rotate={-14} delay={0.45} size="small" />
 
           <div className="relative">
             <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[oklch(0.86_0.17_85)]" />
+              <Sparkles className="h-3 w-3 text-[oklch(0.86_0.17_85)]" />
               <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-zinc-400 sm:text-xs sm:tracking-[0.4em]">
-                Placar Oficial
+                Bem-vindo de volta{user ? `, ${user.name}` : ''}
               </p>
             </div>
             <motion.h1
@@ -384,7 +446,34 @@ export default function Home() {
             </motion.h1>
             <p className="mt-2 text-xs text-zinc-400 sm:mt-3 sm:text-sm">O Grupo dos Impossíveis</p>
 
-            <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-3 sm:grid-cols-4">
+            {/* CTA principal — o coração do launcher */}
+            <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-9">
+              <motion.button
+                whileHover={isDesktop ? { y: -3, scale: 1.02 } : {}}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => navigate('/jogo')}
+                className="group relative flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-[oklch(0.63_0.24_27)] to-[oklch(0.56_0.22_27)] px-7 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[0_18px_45px_-12px_oklch(0.63_0.24_27/0.75)] ring-1 ring-white/20 transition sm:px-9 sm:py-5 sm:text-base"
+              >
+                <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15 sm:h-9 sm:w-9">
+                  <Play className="h-4 w-4 fill-current sm:h-5 sm:w-5" />
+                </span>
+                Jogar Agora
+              </motion.button>
+
+              <motion.button
+                whileHover={isDesktop ? { y: -2 } : {}}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => scrollTo('registrar')}
+                className="flex items-center gap-2 rounded-2xl bg-white/[0.05] px-5 py-4 text-xs font-bold uppercase tracking-widest text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-white/10 hover:text-white sm:px-6 sm:py-5 sm:text-sm"
+              >
+                <Trophy className="h-4 w-4 text-[oklch(0.86_0.17_85)]" />
+                Registrar Vitória
+              </motion.button>
+            </div>
+
+            {/* Estatísticas rápidas do grupo */}
+            <div className="mt-7 grid grid-cols-2 gap-2 sm:mt-9 sm:gap-3 sm:grid-cols-4">
               <StatTile delay={0.1} label="Partidas" value={<CountUp value={matches.length} />} accent="amarelo" />
               <StatTile
                 delay={0.2}
@@ -416,85 +505,308 @@ export default function Home() {
                 accent="vermelho"
               />
             </div>
-
-            <div className="mt-6 flex flex-wrap items-center gap-1.5 sm:mt-8 sm:gap-2">
-              {PLAYERS.map((p, i) => (
-                <motion.div
-                  key={p.id}
-                  initial={{ opacity: 0, y: 14, rotate: -10 }}
-                  animate={{ opacity: 1, y: 0, rotate: 0 }}
-                  transition={{ delay: 0.5 + i * 0.08, type: 'spring' }}
-                  whileHover={isDesktop ? { y: -6, rotate: -5 } : {}}
-                >
-                  <UnoChip color={p.color} label={p.name[0]} sm />
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="mt-6 inline-flex items-center gap-1.5 text-xs text-zinc-400">
-              <ChevronDown className="h-3.5 w-3.5 animate-bounce" />
-              Role para ver
-            </div>
           </div>
         </motion.header>
 
-        {/* ===== PLACAR ===== */}
-        <Section title="Placar" eyebrow="Classificação">
-          <Tabs value={tab} onValueChange={setTab}>
-            <TabsList className="mb-5 grid w-full grid-cols-3 bg-[oklch(0.22_0.035_265)]/70 p-1">
-              <TabsTrigger value="geral" className="text-xs sm:text-sm">Geral</TabsTrigger>
-              <TabsTrigger value="semana" className="text-xs sm:text-sm">Semana</TabsTrigger>
-              <TabsTrigger value="grafico" className="text-xs sm:text-sm">Gráfico</TabsTrigger>
-            </TabsList>
+        {/* ===== AÇÕES RÁPIDAS ===== */}
+        <div className="mb-8 grid grid-cols-1 gap-3 sm:mb-10 sm:grid-cols-3 sm:gap-4">
+          <ActionCard
+            delay={0.15}
+            isDesktop={isDesktop}
+            icon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
+            tint="oklch(0.63 0.24 27)"
+            kicker="Anfitrião"
+            title="Criar Sala"
+            desc="Abra uma mesa e convide o grupo com um código."
+            onClick={() => navigate('/jogo')}
+          />
+          <ActionCard
+            delay={0.25}
+            isDesktop={isDesktop}
+            icon={<KeyRound className="h-5 w-5" strokeWidth={2.5} />}
+            tint="oklch(0.6 0.22 255)"
+            kicker="Convidado"
+            title="Entrar em Sala"
+            desc="Recebeu um código? Entre direto na mesa."
+            onClick={() => navigate('/jogo')}
+          />
+          <ActionCard
+            delay={0.35}
+            isDesktop={isDesktop}
+            icon={<User className="h-5 w-5" strokeWidth={2.5} />}
+            tint="oklch(0.86 0.17 85)"
+            kicker="Sua conta"
+            title="Meu Perfil"
+            desc="Estatísticas completas, duelos e histórico."
+            onClick={() => navigate('/perfil')}
+          />
+        </div>
 
-            <TabsContent value="geral" className="space-y-3">
-              {matches.length > 0 && <Podium ranking={ranking} wins={stats.wins} />}
-              {ranking.map((p, i) => (
-                <PlayerRow key={p.id} player={p} wins={stats.wins[p.id]} rank={i} index={i} isDesktop={isDesktop} />
-              ))}
-            </TabsContent>
+        {/* ===== PAINEL DO HUB: PERFIL RÁPIDO / RANKING / ATIVIDADE ===== */}
+        <div className="mb-4 grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3">
 
-            <TabsContent value="semana" className="space-y-3">
-              {[...PLAYERS]
-                .sort((a, b) => stats.weekWins[b.id] - stats.weekWins[a.id])
-                .map((p, i) => (
-                  <PlayerRow
-                    key={p.id}
-                    player={p}
-                    wins={stats.weekWins[p.id]}
-                    rank={i}
-                    index={i}
-                    label="Semana atual"
-                    isDesktop={isDesktop}
+          {/* --- Perfil rápido --- */}
+          {user && myStats && (
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.45 }}
+              className="relative overflow-hidden rounded-3xl uno-card-surface p-5 sm:p-6"
+            >
+              <div
+                className="pointer-events-none absolute inset-x-0 top-0 h-28 opacity-25"
+                style={{
+                  background: `radial-gradient(ellipse at center top, ${COLOR_STYLES[user.color]?.hex ?? 'oklch(0.86 0.17 85)'} 0%, transparent 65%)`,
+                }}
+              />
+              <PanelTitle icon={<User className="h-3.5 w-3.5" />} title="Perfil Rápido" />
+              <div className="relative mt-4 flex items-center gap-4">
+                <div className="relative">
+                  <div
+                    className="pointer-events-none absolute -inset-2 rounded-full opacity-50 blur-xl"
+                    style={{ background: COLOR_STYLES[user.color]?.hex }}
                   />
-                ))}
-            </TabsContent>
-
-            <TabsContent value="grafico">
-              <div className="rounded-2xl uno-card-surface p-4 sm:p-6">
-                <div className="h-72 w-full">
-                  <ResponsiveContainer>
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-                      <XAxis dataKey="name" stroke="#a1a1aa" fontSize={12} />
-                      <YAxis stroke="#a1a1aa" fontSize={12} allowDecimals={false} />
-                      <Tooltip
-                        contentStyle={{
-                          background: 'oklch(0.22 0.035 265)',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          borderRadius: 12,
-                          color: 'white',
-                        }}
-                      />
-                      <Bar dataKey="Vitórias" fill="oklch(0.63 0.24 27)" radius={[8, 8, 0, 0]} />
-                      <Bar dataKey="Semana" fill="oklch(0.6 0.22 255)" radius={[8, 8, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <div className="relative scale-110">
+                    {playerData ? (
+                      <UnoChip color={playerData.color} label={user.name[0]} />
+                    ) : (
+                      <UnoChip color="red" label={user.name[0]} />
+                    )}
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-500">
+                    <Sparkles className="h-3 w-3 text-[oklch(0.86_0.17_85)]" />
+                    {myStats.rankLabel}
+                  </p>
+                  <p className="truncate font-display text-3xl leading-none sm:text-4xl" translate="no">
+                    {user.name}
+                  </p>
+                  {myStats.rankPos && (
+                    <p className="mt-1 text-[10px] uppercase tracking-widest text-zinc-500">
+                      #{myStats.rankPos} no ranking
+                    </p>
+                  )}
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
-        </Section>
+
+              <div className="relative mt-5 grid grid-cols-3 gap-2">
+                <MiniStat label="Vitórias" value={<CountUp value={myStats.vitorias} />} tint="oklch(0.86 0.17 85)" />
+                <MiniStat label="Partidas" value={<CountUp value={myStats.partidas} />} tint="oklch(0.6 0.22 255)" />
+                <MiniStat label="Taxa" value={<span className="font-score">{myStats.winRate}%</span>} tint="oklch(0.68 0.2 152)" />
+              </div>
+
+              {myStats.sequencia > 0 && (
+                <div className="relative mt-3 flex items-center gap-2 rounded-xl bg-[oklch(0.63_0.24_27)]/15 px-3 py-2 ring-1 ring-[oklch(0.63_0.24_27)]/30">
+                  <Flame className="h-3.5 w-3.5 text-[oklch(0.78_0.2_27)]" />
+                  <p className="text-xs font-bold text-[oklch(0.85_0.18_27)]">
+                    Em sequência de {myStats.sequencia} vitória{myStats.sequencia > 1 ? 's' : ''}!
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={() => navigate('/perfil')}
+                className="group relative mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.05] px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white"
+              >
+                Ver perfil completo
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            </motion.section>
+          )}
+
+          {/* --- Ranking rápido --- */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.45, delay: 0.08 }}
+            className="relative overflow-hidden rounded-3xl uno-card-surface p-5 sm:p-6"
+          >
+            <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[oklch(0.86_0.17_85)]/15 blur-3xl" />
+            <PanelTitle icon={<Medal className="h-3.5 w-3.5" />} title="Ranking" hint="Top 3" />
+            <div className="relative mt-4 space-y-2.5">
+              {ranking.slice(0, 3).map((p, i) => {
+                const isTop = i === 0 && stats.wins[p.id] > 0;
+                const isYou = user && p.id === user.id;
+                return (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, x: -12 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 + i * 0.08 }}
+                    whileHover={isDesktop ? { x: 3 } : {}}
+                    className={`flex items-center gap-3 rounded-2xl p-3 transition-colors ${
+                      isTop
+                        ? 'bg-[oklch(0.86_0.17_85)]/10 ring-1 ring-[oklch(0.86_0.17_85)]/40'
+                        : 'bg-[oklch(0.22_0.035_265)]/60 ring-1 ring-white/5 hover:ring-white/15'
+                    }`}
+                  >
+                    <span className={`w-6 text-center font-display text-lg ${isTop ? 'text-[oklch(0.86_0.17_85)]' : 'text-zinc-500'}`}>
+                      {i + 1}º
+                    </span>
+                    <UnoChip color={p.color} label={p.name[0]} sm />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold" translate="no">
+                        {p.name}
+                        {isYou && <span className="ml-1.5 text-[9px] font-black uppercase tracking-widest text-zinc-500">Você</span>}
+                        {isTop && <Crown className="ml-1.5 inline h-3.5 w-3.5 text-[oklch(0.86_0.17_85)]" />}
+                      </p>
+                    </div>
+                    <p className="font-display text-2xl leading-none">
+                      <span className="font-score">{stats.wins[p.id]}</span>
+                      <span className="ml-1 text-xs text-zinc-500">V</span>
+                    </p>
+                  </motion.div>
+                );
+              })}
+            </div>
+            <button
+              onClick={() => scrollTo('placar')}
+              className="group relative mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.05] px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white"
+            >
+              Ver placar completo
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </motion.section>
+
+          {/* --- Atividade recente --- */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.45, delay: 0.16 }}
+            className="relative overflow-hidden rounded-3xl uno-card-surface p-5 sm:p-6"
+          >
+            <div className="pointer-events-none absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-[oklch(0.6_0.22_255)]/15 blur-3xl" />
+            <PanelTitle icon={<TrendingUp className="h-3.5 w-3.5" />} title="Atividade Recente" />
+            <div className="relative mt-4 space-y-2.5">
+              {loading ? (
+                <div className="flex flex-col items-center py-8 text-zinc-400">
+                  <History className="mb-2 h-8 w-8 animate-pulse opacity-60" />
+                  <p className="text-xs uppercase tracking-widest">Carregando...</p>
+                </div>
+              ) : atividadeRecente.length === 0 ? (
+                <div className="flex flex-col items-center py-8 text-center text-zinc-400">
+                  <Target className="mb-2 h-8 w-8 opacity-60" />
+                  <p className="text-sm font-medium">Nenhuma partida ainda</p>
+                  <p className="text-xs text-zinc-500">Bora inaugurar a mesa!</p>
+                </div>
+              ) : (
+                atividadeRecente.map((m, i) => (
+                  <motion.div
+                    key={m.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 + i * 0.08 }}
+                    className="rounded-2xl bg-[oklch(0.22_0.035_265)]/60 p-3 ring-1 ring-white/5 transition hover:ring-white/15"
+                  >
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {m.winners.map((wId) => {
+                        const w = pById(wId);
+                        if (!w) return null;
+                        return (
+                          <span
+                            key={wId}
+                            className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.86_0.17_85)]/15 px-2 py-0.5 text-[11px] font-semibold text-[oklch(0.88_0.16_85)]"
+                            translate="no"
+                          >
+                            <Crown className="h-3 w-3" />
+                            {w.name}
+                          </span>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1">
+                        {m.played.map((id) => {
+                          const p = pById(id);
+                          if (!p) return null;
+                          return <span key={id} className={`h-2 w-2 rounded-full ${COLOR_STYLES[p.color].dot}`} title={p.name} />;
+                        })}
+                      </div>
+                      <p className="text-[10px] uppercase tracking-wider text-zinc-500">
+                        {new Date(m.ts).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </div>
+            {atividadeRecente.length > 0 && (
+              <button
+                onClick={() => scrollTo('historico')}
+                className="group relative mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.05] px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white"
+              >
+                Ver histórico
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            )}
+          </motion.section>
+        </div>
+
+        {/* ===== PLACAR ===== */}
+        <div id="placar" className="scroll-mt-6">
+          <Section title="Placar" eyebrow="Classificação">
+            <Tabs value={tab} onValueChange={setTab}>
+              <TabsList className="mb-5 grid w-full grid-cols-3 bg-[oklch(0.22_0.035_265)]/70 p-1">
+                <TabsTrigger value="geral" className="text-xs sm:text-sm">Geral</TabsTrigger>
+                <TabsTrigger value="semana" className="text-xs sm:text-sm">Semana</TabsTrigger>
+                <TabsTrigger value="grafico" className="text-xs sm:text-sm">Gráfico</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="geral" className="space-y-3">
+                {matches.length > 0 && <Podium ranking={ranking} wins={stats.wins} />}
+                {ranking.map((p, i) => (
+                  <PlayerRow key={p.id} player={p} wins={stats.wins[p.id]} rank={i} index={i} isDesktop={isDesktop} />
+                ))}
+              </TabsContent>
+
+              <TabsContent value="semana" className="space-y-3">
+                {[...PLAYERS]
+                  .sort((a, b) => stats.weekWins[b.id] - stats.weekWins[a.id])
+                  .map((p, i) => (
+                    <PlayerRow
+                      key={p.id}
+                      player={p}
+                      wins={stats.weekWins[p.id]}
+                      rank={i}
+                      index={i}
+                      label="Semana atual"
+                      isDesktop={isDesktop}
+                    />
+                  ))}
+              </TabsContent>
+
+              <TabsContent value="grafico">
+                <div className="rounded-2xl uno-card-surface p-4 sm:p-6">
+                  <div className="h-72 w-full">
+                    <ResponsiveContainer>
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                        <XAxis dataKey="name" stroke="#a1a1aa" fontSize={12} />
+                        <YAxis stroke="#a1a1aa" fontSize={12} allowDecimals={false} />
+                        <Tooltip
+                          contentStyle={{
+                            background: 'oklch(0.22 0.035 265)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: 12,
+                            color: 'white',
+                          }}
+                        />
+                        <Bar dataKey="Vitórias" fill="oklch(0.63 0.24 27)" radius={[8, 8, 0, 0]} />
+                        <Bar dataKey="Semana" fill="oklch(0.6 0.22 255)" radius={[8, 8, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </Section>
+        </div>
 
         {/* ===== RIVALIDADES ===== */}
         <Section title="Rivalidades" eyebrow="Duelos" icon={<Swords className="h-5 w-5 sm:h-6 sm:w-6" />}>
@@ -558,187 +870,197 @@ export default function Home() {
         </Section>
 
         {/* ===== REGISTRAR ===== */}
-        <Section title="Registrar" eyebrow="Nova Partida">
-          <div className="rounded-2xl uno-card-surface p-4 sm:p-8">
-            <div className="mb-6">
-              <label className="mb-3 block text-sm font-semibold text-zinc-400">
-                Quem jogou?
-              </label>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {PLAYERS.map((p) => {
-                  const active = selectedPlayed.includes(p.id);
-                  return (
-                    <motion.button
-                      key={p.id}
-                      whileHover={isDesktop ? { y: -2 } : {}}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => togglePlayed(p.id)}
-                      className={`group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
-                        active
-                          ? `border-transparent bg-white/10 ring-2 ring-offset-2 ring-offset-[oklch(0.16_0.03_265)] ${COLOR_STYLES[p.color].ring}`
-                          : 'border-white/10 bg-[oklch(0.22_0.035_265)]/60 hover:bg-[oklch(0.22_0.035_265)]'
-                      }`}
-                    >
-                      <span className={`h-3 w-3 rounded-full ${COLOR_STYLES[p.color].dot}`} />
-                      <span className="font-medium" translate="no">{p.name}</span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="mb-3 block text-sm font-semibold text-zinc-400">
-                Quem ganhou?
-              </label>
-              {selectedPlayed.length === 0 ? (
-                <p className="rounded-xl border border-dashed border-white/10 bg-[oklch(0.22_0.035_265)]/40 px-4 py-3 text-sm text-zinc-400">
-                  Selecione os jogadores primeiro
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {selectedPlayed.map((id) => {
-                    const p = pById(id);
-                    const active = selectedWinners.includes(id);
+        <div id="registrar" className="scroll-mt-6">
+          <Section title="Registrar" eyebrow="Nova Partida">
+            <div className="rounded-2xl uno-card-surface p-4 sm:p-8">
+              <div className="mb-6">
+                <label className="mb-3 block text-sm font-semibold text-zinc-400">
+                  Quem jogou?
+                </label>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {PLAYERS.map((p) => {
+                    const active = selectedPlayed.includes(p.id);
                     return (
                       <motion.button
-                        key={id}
-                        whileHover={isDesktop ? { scale: 1.04 } : {}}
-                        whileTap={{ scale: 0.96 }}
-                        onClick={() => toggleWinner(id)}
-                        className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                        key={p.id}
+                        whileHover={isDesktop ? { y: -2 } : {}}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => togglePlayed(p.id)}
+                        className={`group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
                           active
-                            ? `${COLOR_STYLES[p.color].bg} ${
-                                p.color === 'white' ? 'text-[oklch(0.2_0.04_265)]' : 'text-white'
-                              } shadow-lg`
-                            : 'bg-[oklch(0.22_0.035_265)]/60 text-zinc-200 hover:bg-[oklch(0.22_0.035_265)]'
+                            ? `border-transparent bg-white/10 ring-2 ring-offset-2 ring-offset-[oklch(0.16_0.03_265)] ${COLOR_STYLES[p.color].ring}`
+                            : 'border-white/10 bg-[oklch(0.22_0.035_265)]/60 hover:bg-[oklch(0.22_0.035_265)]'
                         }`}
                       >
-                        {active && <Crown className="h-3.5 w-3.5" />}
-                        <span translate="no">{p.name}</span>
+                        <span className={`h-3 w-3 rounded-full ${COLOR_STYLES[p.color].dot}`} />
+                        <span className="font-medium" translate="no">{p.name}</span>
                       </motion.button>
                     );
                   })}
                 </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="mb-3 block text-sm font-semibold text-zinc-400">
+                  Quem ganhou?
+                </label>
+                {selectedPlayed.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-white/10 bg-[oklch(0.22_0.035_265)]/40 px-4 py-3 text-sm text-zinc-400">
+                    Selecione os jogadores primeiro
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedPlayed.map((id) => {
+                      const p = pById(id);
+                      const active = selectedWinners.includes(id);
+                      return (
+                        <motion.button
+                          key={id}
+                          whileHover={isDesktop ? { scale: 1.04 } : {}}
+                          whileTap={{ scale: 0.96 }}
+                          onClick={() => toggleWinner(id)}
+                          className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                            active
+                              ? `${COLOR_STYLES[p.color].bg} ${
+                                  p.color === 'white' ? 'text-[oklch(0.2_0.04_265)]' : 'text-white'
+                                } shadow-lg`
+                              : 'bg-[oklch(0.22_0.035_265)]/60 text-zinc-200 hover:bg-[oklch(0.22_0.035_265)]'
+                          }`}
+                        >
+                          {active && <Crown className="h-3.5 w-3.5" />}
+                          <span translate="no">{p.name}</span>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="mb-6">
+                <label className="mb-2 block text-sm font-semibold text-zinc-400">
+                  Observação (opcional)
+                </label>
+                <Textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Algum detalhe sobre essa partida?"
+                  className="min-h-[80px] border-white/10 text-zinc-100 placeholder:text-zinc-500"
+                  style={{ background: 'oklch(0.22 0.035 265 / 0.6)' }}
+                />
+              </div>
+
+              <motion.div whileHover={isDesktop ? { scale: 1.005 } : {}} whileTap={{ scale: 0.99 }}>
+                <Button
+                  onClick={submit}
+                  disabled={submitting || selectedPlayed.length < 2 || selectedWinners.length === 0}
+                  className="h-12 w-full bg-[oklch(0.63_0.24_27)] hover:bg-[oklch(0.68_0.24_27)] text-base font-bold uppercase tracking-wider text-white shadow-[0_10px_30px_-10px_oklch(0.63_0.24_27/0.7)] disabled:opacity-40"
+                >
+                  {submitting ? 'Salvando...' : 'Registrar Vitória'}
+                </Button>
+              </motion.div>
+              {error && (
+                <p className="mt-3 rounded-md bg-[oklch(0.63_0.24_27)]/15 px-3 py-2 text-sm text-[oklch(0.85_0.18_27)]">
+                  {error}
+                </p>
               )}
             </div>
-
-            <div className="mb-6">
-              <label className="mb-2 block text-sm font-semibold text-zinc-400">
-                Observação (opcional)
-              </label>
-              <Textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Algum detalhe sobre essa partida?"
-                className="min-h-[80px] border-white/10 text-zinc-100 placeholder:text-zinc-500"
-                style={{ background: 'oklch(0.22 0.035 265 / 0.6)' }}
-              />
-            </div>
-
-            <motion.div whileHover={isDesktop ? { scale: 1.005 } : {}} whileTap={{ scale: 0.99 }}>
-              <Button
-                onClick={submit}
-                disabled={submitting || selectedPlayed.length < 2 || selectedWinners.length === 0}
-                className="h-12 w-full bg-[oklch(0.63_0.24_27)] hover:bg-[oklch(0.68_0.24_27)] text-base font-bold uppercase tracking-wider text-white shadow-[0_10px_30px_-10px_oklch(0.63_0.24_27/0.7)] disabled:opacity-40"
-              >
-                {submitting ? 'Salvando...' : 'Registrar Vitória'}
-              </Button>
-            </motion.div>
-            {error && (
-              <p className="mt-3 rounded-md bg-[oklch(0.63_0.24_27)]/15 px-3 py-2 text-sm text-[oklch(0.85_0.18_27)]">
-                {error}
-              </p>
-            )}
-          </div>
-        </Section>
+          </Section>
+        </div>
 
         {/* ===== HISTÓRICO ===== */}
-        <Section title="Histórico" eyebrow="Memória da Semana">
-          <div className="rounded-2xl uno-card-surface p-4 sm:p-6">
-            {loading ? (
-              <div className="flex flex-col items-center py-10 text-center text-zinc-400">
-                <History className="mb-3 h-10 w-10 opacity-60 animate-pulse" />
-                <p className="font-medium">Carregando histórico...</p>
-              </div>
-            ) : historicoSemana.length === 0 ? (
-              <div className="flex flex-col items-center py-10 text-center text-zinc-400">
-                <History className="mb-3 h-10 w-10 opacity-60" />
-                <p className="font-medium">Nenhuma partida esta semana ainda!</p>
-              </div>
-            ) : (
-              <ul className="space-y-3">
-                <AnimatePresence initial={false}>
-                  {historicoSemana.map((m) => (
-                    <motion.li
-                      key={m.id}
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: 50 }}
-                      className="group rounded-xl bg-[oklch(0.22_0.035_265)]/60 p-4 ring-1 ring-white/5 transition hover:ring-white/15"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="mb-2 flex flex-wrap items-center gap-1.5">
-                            {m.winners.map((wId) => {
-                              const w = pById(wId);
-                              return (
-                                <span
-                                  key={wId}
-                                  className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.86_0.17_85)]/15 px-2 py-0.5 text-xs font-semibold text-[oklch(0.88_0.16_85)]"
-                                  translate="no"
-                                >
-                                  <Crown className="h-3 w-3" />
-                                  {w.name}
-                                </span>
-                              );
-                            })}
-                          </div>
-                          <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-400">
-                            <span>Jogaram:</span>
-                            {m.played.map((id) => {
-                              const p = pById(id);
-                              return (
-                                <span key={id} className="inline-flex items-center gap-1" translate="no">
-                                  <span className={`h-2 w-2 rounded-full ${COLOR_STYLES[p.color].dot}`} />
-                                  {p.name}
-                                </span>
-                              );
-                            })}
-                          </div>
-                          {m.note && (
-                            <p className="mt-2 text-sm italic text-zinc-400">
-                              "{m.note}"
+        <div id="historico" className="scroll-mt-6">
+          <Section title="Histórico" eyebrow="Memória da Semana">
+            <div className="rounded-2xl uno-card-surface p-4 sm:p-6">
+              {loading ? (
+                <div className="flex flex-col items-center py-10 text-center text-zinc-400">
+                  <History className="mb-3 h-10 w-10 opacity-60 animate-pulse" />
+                  <p className="font-medium">Carregando histórico...</p>
+                </div>
+              ) : historicoSemana.length === 0 ? (
+                <div className="flex flex-col items-center py-10 text-center text-zinc-400">
+                  <History className="mb-3 h-10 w-10 opacity-60" />
+                  <p className="font-medium">Nenhuma partida esta semana ainda!</p>
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  <AnimatePresence initial={false}>
+                    {historicoSemana.map((m) => (
+                      <motion.li
+                        key={m.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: 50 }}
+                        className="group rounded-xl bg-[oklch(0.22_0.035_265)]/60 p-4 ring-1 ring-white/5 transition hover:ring-white/15"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                              {m.winners.map((wId) => {
+                                const w = pById(wId);
+                                return (
+                                  <span
+                                    key={wId}
+                                    className="inline-flex items-center gap-1 rounded-full bg-[oklch(0.86_0.17_85)]/15 px-2 py-0.5 text-xs font-semibold text-[oklch(0.88_0.16_85)]"
+                                    translate="no"
+                                  >
+                                    <Crown className="h-3 w-3" />
+                                    {w.name}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-400">
+                              <span>Jogaram:</span>
+                              {m.played.map((id) => {
+                                const p = pById(id);
+                                return (
+                                  <span key={id} className="inline-flex items-center gap-1" translate="no">
+                                    <span className={`h-2 w-2 rounded-full ${COLOR_STYLES[p.color].dot}`} />
+                                    {p.name}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                            {m.note && (
+                              <p className="mt-2 text-sm italic text-zinc-400">
+                                "{m.note}"
+                              </p>
+                            )}
+                            <p className="mt-2 text-[11px] uppercase tracking-wider text-zinc-500">
+                              {new Date(m.ts).toLocaleString('pt-BR')}
                             </p>
-                          )}
-                          <p className="mt-2 text-[11px] uppercase tracking-wider text-zinc-500">
-                            {new Date(m.ts).toLocaleString('pt-BR')}
-                          </p>
+                          </div>
+                          <button
+                            onClick={() => removeMatch(m.id)}
+                            className="shrink-0 rounded-lg p-2 text-zinc-400 opacity-0 transition group-hover:opacity-100 hover:bg-[oklch(0.63_0.24_27)]/20 hover:text-[oklch(0.78_0.2_27)]"
+                            aria-label="Remover"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
-                        <button
-                          onClick={() => removeMatch(m.id)}
-                          className="shrink-0 rounded-lg p-2 text-zinc-400 opacity-0 transition group-hover:opacity-100 hover:bg-[oklch(0.63_0.24_27)]/20 hover:text-[oklch(0.78_0.2_27)]"
-                          aria-label="Remover"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </motion.li>
-                  ))}
-                </AnimatePresence>
-              </ul>
-            )}
-          </div>
-        </Section>
+                      </motion.li>
+                    ))}
+                  </AnimatePresence>
+                </ul>
+              )}
+            </div>
+          </Section>
+        </div>
 
-        <footer className="mt-16 text-center text-xs text-zinc-500">
-          Desenvolvido por <span className="font-semibold text-zinc-200">Peixe</span>
+        <footer className="mt-16 flex items-center justify-center gap-2 text-center text-xs text-zinc-500">
+          <span>Inimigos do Uno</span>
+          <span className="text-zinc-700">·</span>
+          <span>Desenvolvido por <span className="font-semibold text-zinc-200">Peixe</span></span>
         </footer>
       </main>
     </div>
   );
 }
+
+/* ============================================================
+ * COMPONENTES VISUAIS DO HUB
+ * ============================================================ */
 
 const ACCENT_MAP = {
   amarelo: { bar: 'bg-[oklch(0.86_0.17_85)]', badge: 'bg-[oklch(0.86_0.17_85)]/15 text-[oklch(0.86_0.17_85)]' },
@@ -768,6 +1090,71 @@ function StatTile({ label, value, icon, delay = 0, accent = 'amarelo' }) {
       </p>
       <p className="mt-1.5 truncate font-display text-xl leading-none sm:text-2xl" translate="no">{value}</p>
     </motion.div>
+  );
+}
+
+// Card de ação rápida do hub — profundidade, glow na cor e hover elegante
+function ActionCard({ icon, tint, kicker, title, desc, onClick, delay = 0, isDesktop = true }) {
+  return (
+    <motion.button
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={isDesktop ? { y: -5 } : {}}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className="group relative overflow-hidden rounded-3xl uno-card-surface p-5 text-left transition sm:p-6"
+    >
+      <div
+        className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-25"
+        style={{ background: tint }}
+      />
+      <div className="flex items-start justify-between">
+        <div
+          className="flex h-11 w-11 items-center justify-center rounded-2xl text-white ring-1 ring-white/15 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
+          style={{
+            background: `linear-gradient(140deg, ${tint}, color-mix(in oklab, ${tint} 60%, black))`,
+            boxShadow: `0 10px 26px -10px ${tint}`,
+          }}
+        >
+          {icon}
+        </div>
+        <ArrowRight className="h-4 w-4 text-zinc-600 transition-all duration-300 group-hover:translate-x-1 group-hover:text-zinc-300" />
+      </div>
+      <p className="mt-4 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-500">{kicker}</p>
+      <h3 className="mt-1 font-display text-2xl leading-none sm:text-3xl">{title}</h3>
+      <p className="mt-1.5 text-xs leading-relaxed text-zinc-400 sm:text-sm">{desc}</p>
+    </motion.button>
+  );
+}
+
+// Título dos painéis do hub
+function PanelTitle({ icon, title, hint }) {
+  return (
+    <div className="relative flex items-center justify-between">
+      <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-zinc-400">
+        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10 text-zinc-300">
+          {icon}
+        </span>
+        {title}
+      </p>
+      {hint && (
+        <span className="rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-zinc-500 ring-1 ring-white/10">
+          {hint}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// Mini-estatística do perfil rápido
+function MiniStat({ label, value, tint }) {
+  return (
+    <div className="relative overflow-hidden rounded-xl bg-[oklch(0.22_0.035_265)]/60 p-2.5 text-center ring-1 ring-white/5 transition hover:ring-white/15">
+      <span className="absolute inset-x-0 top-0 h-[2px] opacity-60" style={{ background: tint }} />
+      <p className="font-display text-xl leading-none sm:text-2xl">{value}</p>
+      <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.2em] text-zinc-500 sm:text-[9px]">{label}</p>
+    </div>
   );
 }
 
@@ -831,8 +1218,12 @@ function PlayerRow({ player, wins, rank, label, index = 0, isDesktop = true }) {
         )}
       </div>
       <div className="text-right">
-        <p className="font-display font-score text-2xl leading-none sm:text-3xl">{wins}</p>
-        <p className="text-[9px] uppercase tracking-widest text-zinc-400 sm:text-[10px]">vitórias</p>
+        <p className="font-display text-2xl leading-none sm:text-3xl">
+          <span className="font-score">{wins}</span>
+        </p>
+        <p className="text-[9px] uppercase tracking-widest text-zinc-500 sm:text-[10px]">
+          vitória{wins === 1 ? '' : 's'}
+        </p>
       </div>
     </motion.div>
   );
