@@ -1,5 +1,5 @@
 /* ============================================================
- * LOBBY PREMIUM — Inimigos do Uno
+ * LOBBY PREMIUM - Inimigos do Uno
  * Redesign visual exclusivo. Nenhuma lógica alterada.
  * ============================================================ */
 
@@ -19,7 +19,7 @@
 }
 
 /* ============================================================
- * ATMOSFERA DE FUNDO — grade sutil + auroras + vignette
+ * ATMOSFERA DE FUNDO - grade sutil + auroras + vignette
  * ============================================================ */
 .lobby-ambient {
   position: fixed;
@@ -235,6 +235,9 @@
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
+          mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
           mask-composite: exclude;
   pointer-events: none;
   opacity: 0.7;
@@ -666,7 +669,7 @@
 }
 
 /* ============================================================
- * INPUT PIN — 4 dígitos
+ * INPUT PIN - 4 dígitos
  * ============================================================ */
 .lobby-pin {
   position: relative;

@@ -1,5 +1,5 @@
 // ============================================================
-// Mesa.jsx — Redesign AAA da tela de partida
+// Mesa.jsx - Redesign AAA da tela de partida
 //
 // IMPORTANTE: 100% da lógica original foi preservada:
 //  - Todos os imports, hooks, state, refs, useEffect, callbacks
@@ -113,7 +113,7 @@ function getIconCarta(carta) {
 
 // ------------------------------------------------------------
 // Carta na mao do jogador
-// Mesmo layoutId que a carta topo — permite "voo" contínuo.
+// Mesmo layoutId que a carta topo - permite "voo" contínuo.
 // ------------------------------------------------------------
 function CartaMao({ carta, selecionada, onClick, disabled }) {
   const isEspecial = carta.tipo === 'especial';
@@ -1020,7 +1020,7 @@ export default function Mesa() {
           {/* Baralho + Pilha */}
           <div className="relative flex items-center gap-8 sm:gap-14">
 
-            {/* Baralho — pilha física */}
+            {/* Baralho - pilha física */}
             <div className="flex flex-col items-center gap-3">
               <motion.button
                 whileHover={ehMinhVez ? { y: -4 } : {}}
@@ -1047,7 +1047,7 @@ export default function Mesa() {
               <p className="mesa-eyebrow" style={{ fontSize: '0.58rem' }}>Comprar</p>
             </div>
 
-            {/* Descarte — topo */}
+            {/* Descarte - topo */}
             <div className="flex flex-col items-center gap-3">
               <div className="relative">
                 <AnimatePresence mode="popLayout">
@@ -1072,7 +1072,7 @@ export default function Mesa() {
           )}
         </div>
 
-        {/* Minha mão — leque no piso */}
+        {/* Minha mão - leque no piso */}
         <div className="relative z-10 px-3 pb-4 sm:px-5 sm:pb-5">
           <div className="mesa-hand-floor mesa-surface p-4 sm:p-5">
             <div className="flex items-center justify-between mb-4">

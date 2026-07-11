@@ -1,5 +1,5 @@
 /* ================================================================
-   MESA.CSS  —  Redesign AAA da tela da partida
+   MESA.CSS  -  Redesign AAA da tela da partida
    Arquivo COMPLEMENTAR ao App.css. Importe no topo de Mesa.jsx:
      import './Mesa.css';
    Nenhuma classe do App.css antigo é sobrescrita.
@@ -7,8 +7,8 @@
 
 /* -----------------------------------------------------------------
    1. AMBIENTE DA MESA
-   Camadas: obsidiana profunda → moldura de madeira → feltro grafite
-   → vinheta radial. É a "sala" onde a partida acontece.
+   Camadas: obsidiana profunda -> moldura de madeira -> feltro grafite
+   -> vinheta radial. É a "sala" onde a partida acontece.
    ----------------------------------------------------------------- */
 .mesa-room {
   position: relative;
@@ -63,7 +63,7 @@
 }
 
 /* -----------------------------------------------------------------
-   2. FELTRO — oval central com profundidade real
+   2. FELTRO - oval central com profundidade real
    ----------------------------------------------------------------- */
 .mesa-felt {
   position: absolute;
@@ -87,7 +87,7 @@
     0 0 0 1px oklch(1 0 0 / 0.02);
 }
 
-/* Moldura de madeira ao redor do feltro — anel discreto */
+/* Moldura de madeira ao redor do feltro - anel discreto */
 .mesa-felt::after {
   content: "";
   position: absolute;
@@ -137,7 +137,7 @@
 }
 
 /* -----------------------------------------------------------------
-   4. CARTAS FÍSICAS  —  a peça mais importante
+   4. CARTAS FÍSICAS  -  a peça mais importante
    Um objeto real sobre a mesa: relevo sutil, satin highlight,
    sombra difusa por baixo, borda emboss.
    ----------------------------------------------------------------- */
@@ -170,7 +170,7 @@
   z-index: 0;
 }
 
-/* Satin sweep — reflexo diagonal fixo */
+/* Satin sweep - reflexo diagonal fixo */
 .mesa-card-sheen::before {
   content: "";
   position: absolute;
@@ -195,7 +195,7 @@
     0 6px 12px -6px oklch(0 0 0 / 0.5);
 }
 
-/* Estado selecionado (na mão) — anel dourado sutil, sem grito */
+/* Estado selecionado (na mão) - anel dourado sutil, sem grito */
 .mesa-card.is-selected {
   box-shadow:
     inset 0 1px 0 oklch(1 0 0 / 0.5),
@@ -209,7 +209,7 @@
   filter: saturate(0.55) brightness(0.75);
 }
 
-/* Verso de carta — padrão UNO estilizado */
+/* Verso de carta - padrão UNO estilizado */
 .mesa-card-back {
   background:
     radial-gradient(ellipse at 50% 45%,
@@ -251,7 +251,7 @@
 .mesa-card-back-lg::after { font-size: 1.4rem; }
 
 /* -----------------------------------------------------------------
-   5. PILHA DE COMPRA — várias cartas empilhadas, física real
+   5. PILHA DE COMPRA - várias cartas empilhadas, física real
    ----------------------------------------------------------------- */
 .mesa-deck {
   position: relative;
@@ -405,7 +405,7 @@
 }
 
 /* -----------------------------------------------------------------
-   7. HUD — chip de código, saída, indicador de turno
+   7. HUD - chip de código, saída, indicador de turno
    ----------------------------------------------------------------- */
 .mesa-hud-chip {
   display: inline-flex;
@@ -432,7 +432,7 @@
   padding-left: 4px;
 }
 
-/* Indicador de "sua vez" — pill dourada minimalista */
+/* Indicador de "sua vez" - pill dourada minimalista */
 .mesa-turn-pill {
   display: inline-flex;
   align-items: center;
@@ -482,7 +482,7 @@
   padding: 0 2px;
 }
 
-/* Pill do "acumulado" — discreta, vermelha */
+/* Pill do "acumulado" - discreta, vermelha */
 .mesa-stack-pill {
   display: inline-flex;
   align-items: center;
@@ -611,7 +611,7 @@
 .mesa-btn-sm { padding: 6px 12px; font-size: 0.72rem; border-radius: 10px; }
 
 /* -----------------------------------------------------------------
-   9. TIPOGRAFIA — hierarquia consistente
+   9. TIPOGRAFIA - hierarquia consistente
    ----------------------------------------------------------------- */
 .mesa-eyebrow {
   font-family: 'Inter', sans-serif;
@@ -628,7 +628,7 @@
 }
 
 /* -----------------------------------------------------------------
-   10. MODAIS — vidro cinematográfico
+   10. MODAIS - vidro cinematográfico
    ----------------------------------------------------------------- */
 .mesa-modal-overlay {
   position: fixed;
@@ -672,7 +672,7 @@
 }
 
 /* -----------------------------------------------------------------
-   11. FLOOR SHADOW — sombra suave por baixo da mão do jogador
+   11. FLOOR SHADOW - sombra suave por baixo da mão do jogador
    ----------------------------------------------------------------- */
 .mesa-hand-floor {
   position: relative;
@@ -691,7 +691,7 @@
   pointer-events: none;
 }
 
-/* Acessibilidade — reduzir movimento */
+/* Acessibilidade - reduzir movimento */
 @media (prefers-reduced-motion: reduce) {
   .mesa-turn-dot::after,
   .mesa-player.is-turn::after {
