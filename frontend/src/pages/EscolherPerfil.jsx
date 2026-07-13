@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth, PROFILES } from '../context/AuthContext';
+import { useLoadingExperience } from '../components/LoadingExperience';
 import { COLOR_STYLES } from '../data/players';
 import UnoChip from '../components/UnoChip';
 import { ChevronRight } from 'lucide-react';
@@ -19,10 +20,28 @@ const EASE_PREMIUM = [0.16, 1, 0.3, 1];
 export default function EscolherPerfil() {
   const { escolherPerfil } = useAuth();
   const navigate = useNavigate();
+  const { withLoading } = useLoadingExperience();
 
-  function entrar(profile) {
-    escolherPerfil(profile);
-    navigate('/');
+  async function entrar(profile) {
+    await withLoading(
+      async () => {
+        escolherPerfil(profile);
+
+        // Pequena pausa para a animação ficar natural
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        navigate('/');
+      },
+      {
+        title: 'INIMIGOS DO UNO',
+        tips: [
+          'Embaralhando as cartas...',
+          'Preparando a mesa...',
+          'Chamando os jogadores...',
+          'Preparando sua próxima vitória...',
+        ],
+      }
+    );
   }
 
   return (
@@ -36,7 +55,7 @@ export default function EscolherPerfil() {
         style={{ background: 'radial-gradient(ellipse, oklch(0.17 0.025 145 / 0.55) 0%, transparent 70%)' }}
       />
 
-      {/* Cartas atmosfericas, quase imperceptiveis - apenas textura, nao competem por atencao */}
+      {/* Cartas atmosfericas */}
       <div
         className="pointer-events-none absolute -left-12 top-[12%] hidden h-40 w-28 rotate-[-16deg] rounded-2xl opacity-[0.055] blur-md sm:block"
         style={{ background: `linear-gradient(150deg, oklch(${ACCENT.vermelho}) 0%, oklch(0.3 0.12 27) 100%)` }}
@@ -46,7 +65,7 @@ export default function EscolherPerfil() {
         style={{ background: `linear-gradient(150deg, oklch(${ACCENT.azul}) 0%, oklch(0.28 0.1 255) 100%)` }}
       />
 
-      {/* Vinheta cinematografica */}
+      {/* Vinheta */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{ background: 'radial-gradient(ellipse 100% 100% at 50% 42%, transparent 40%, oklch(0.02 0 0 / 0.7) 100%)' }}
@@ -59,12 +78,9 @@ export default function EscolherPerfil() {
         className="relative z-10 w-full max-w-md"
       >
         <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-white/[0.03] px-7 py-9 shadow-[0_40px_100px_-24px_rgba(0,0,0,0.85)] backdrop-blur-2xl sm:px-10 sm:py-11">
-          {/* Linha de luz na borda superior */}
           <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-          {/* Glow interno sutil no topo */}
           <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-[oklch(0.63_0.24_27)]/10 blur-3xl" />
 
-          {/* Logo + titulo */}
           <div className="relative mb-9 text-center sm:mb-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.6, rotate: -10 }}
@@ -88,17 +104,21 @@ export default function EscolherPerfil() {
               Bem-vindo
               <span className="h-px w-4 bg-white/15" />
             </p>
+
             <h1 className="font-display text-4xl leading-none sm:text-[2.75rem]">
               <span className="foil-text">Inimigos do Uno</span>
             </h1>
-            <p className="mt-3 text-sm text-zinc-500">Escolha seu perfil para entrar</p>
+
+            <p className="mt-3 text-sm text-zinc-500">
+              Escolha seu perfil para entrar
+            </p>
           </div>
 
-          {/* Perfis - cada card funciona como o "botao entrar" */}
           <div className="relative space-y-2.5">
             {PROFILES.map((profile, i) => {
               const c = COLOR_STYLES[profile.color];
               const accent = ACCENT[profile.color];
+
               return (
                 <motion.button
                   key={profile.id}
@@ -115,13 +135,17 @@ export default function EscolherPerfil() {
                     className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                     style={{ background: `radial-gradient(160px circle at 14% 50%, oklch(${accent} / 0.16), transparent 72%)` }}
                   />
+
                   <UnoChip color={profile.color} label={profile.name[0]} sm />
+
                   <div className="relative flex-1">
                     <p className="font-display text-2xl leading-none text-white" translate="no">
                       {profile.name}
                     </p>
                   </div>
+
                   <span className={`relative h-2 w-2 rounded-full ${c.dot}`} />
+
                   <ChevronRight className="relative h-4 w-4 text-zinc-600 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-zinc-300" />
                 </motion.button>
               );

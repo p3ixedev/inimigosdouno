@@ -1,0 +1,325 @@
+/* ============================================================
+   LOADING EXPERIENCE — estilos
+   Adicione este arquivo ao projeto e importe uma vez
+   (ex.: no index.css:  @import './loading-experience.css';
+    ou no main.jsx:     import './styles/loading-experience.css';)
+
+   Tudo animado com transform/opacity — leve e fluido.
+   ============================================================ */
+
+/* ---------- Overlay ---------- */
+.lx-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: oklch(0.16 0.03 265);
+}
+
+/* ---------- Fundo: profundidade e luz ---------- */
+.lx-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.lx-bg-aurora {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.35;
+  will-change: transform;
+}
+
+.lx-bg-aurora-1 {
+  top: -25%;
+  left: -15%;
+  background: radial-gradient(
+    circle,
+    oklch(0.45 0.16 275 / 0.55),
+    transparent 65%
+  );
+  animation: lx-aurora-drift 14s ease-in-out infinite alternate;
+}
+
+.lx-bg-aurora-2 {
+  bottom: -30%;
+  right: -20%;
+  background: radial-gradient(
+    circle,
+    oklch(0.5 0.14 200 / 0.4),
+    transparent 65%
+  );
+  animation: lx-aurora-drift 18s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes lx-aurora-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(6%, 4%, 0) scale(1.12); }
+}
+
+/* Luz da mesa — spotlight suave no centro */
+.lx-bg-spotlight {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 45% at 50% 46%,
+    oklch(0.35 0.06 270 / 0.55),
+    transparent 70%
+  );
+}
+
+.lx-bg-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    oklch(0.1 0.03 265 / 0.85) 100%
+  );
+}
+
+/* ---------- Palco do orbital ---------- */
+.lx-stage {
+  position: relative;
+  width: 260px;
+  height: 260px;
+}
+
+@media (min-width: 640px) {
+  .lx-stage {
+    width: 320px;
+    height: 320px;
+  }
+}
+
+/* Halo pulsante atrás do núcleo */
+.lx-core-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 65%;
+  height: 65%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    oklch(0.7 0.15 280 / 0.28),
+    transparent 70%
+  );
+  animation: lx-glow-pulse 2.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes lx-glow-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+  50%      { transform: translate(-50%, -50%) scale(1.14); opacity: 1; }
+}
+
+/* Anel sutil marcando a órbita */
+.lx-orbit-ring {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 1px solid oklch(1 0 0 / 0.07);
+  box-shadow: inset 0 0 40px oklch(1 0 0 / 0.03);
+}
+
+/* ---------- Órbita das cartas ----------
+   Estrutura:
+   .lx-orbit-origin  → centro do palco
+   .lx-orbit-track   → gira (órbita)
+   .lx-orbit-counter → contra-rotação (carta mantém orientação)
+   .lx-card-orbit    → escala/elevação (efeito embaralhar)          */
+.lx-orbit-origin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+
+.lx-orbit-track {
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation-name: lx-orbit;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes lx-orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Braço: apenas o raio da órbita (translação fixa) */
+.lx-orbit-arm {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(0, -96px);
+}
+
+@media (min-width: 640px) {
+  .lx-orbit-arm {
+    transform: translate(0, -118px);
+  }
+}
+
+/* Contra-rotação: mantém a carta sempre "em pé" */
+.lx-orbit-counter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation-name: lx-orbit-counter;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes lx-orbit-counter {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+/* ---------- A carta ---------- */
+.lx-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46px;
+  height: 66px;
+  margin-left: -23px;
+  margin-top: -33px;
+  border-radius: 10px;
+  border: 2px solid oklch(1 0 0 / 0.25);
+  box-shadow:
+    0 10px 26px oklch(0 0 0 / 0.45),
+    0 2px 6px oklch(0 0 0 / 0.35);
+  will-change: transform;
+}
+
+@media (min-width: 640px) {
+  .lx-card {
+    width: 56px;
+    height: 80px;
+    margin-left: -28px;
+    margin-top: -40px;
+    border-radius: 12px;
+  }
+}
+
+/* Elipse interna — assinatura das cartas UNO do projeto */
+.lx-card-ellipse {
+  position: absolute;
+  inset: 14%;
+  opacity: 0.45;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50% / 60%;
+  transform: rotate(-20deg);
+}
+
+/* "Respiração" do embaralhamento: cada carta cresce e brilha
+   ao passar pelo topo da órbita (delay sincronizado por JS) */
+.lx-card-orbit {
+  animation-name: lx-card-breathe;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  animation-iteration-count: infinite;
+}
+
+@keyframes lx-card-breathe {
+  0%, 100% {
+    transform: scale(1.18) rotate(-4deg);
+    filter: brightness(1.15);
+  }
+  50% {
+    transform: scale(0.86) rotate(4deg);
+    filter: brightness(0.8);
+  }
+}
+
+/* ---------- Núcleo: logotipo foil ---------- */
+.lx-core {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 26%;
+}
+
+.lx-foil-text {
+  font-size: clamp(1.15rem, 4vw, 1.6rem);
+  line-height: 1.05;
+  letter-spacing: 0.08em;
+  background: linear-gradient(
+    110deg,
+    oklch(0.85 0.02 270) 20%,
+    oklch(0.99 0.01 90) 38%,
+    oklch(0.78 0.1 280) 52%,
+    oklch(0.99 0.01 90) 66%,
+    oklch(0.85 0.02 270) 82%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: lx-foil-sweep 3.2s ease-in-out infinite;
+  text-shadow: none;
+}
+
+@keyframes lx-foil-sweep {
+  0%   { background-position: 120% 0; }
+  100% { background-position: -120% 0; }
+}
+
+/* ---------- Fio de energia (indicador vivo) ---------- */
+.lx-energy {
+  position: relative;
+  height: 2px;
+  border-radius: 999px;
+  background: oklch(1 0 0 / 0.08);
+  overflow: hidden;
+}
+
+.lx-energy-sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.8 0.12 280 / 0.9),
+    transparent
+  );
+  animation: lx-energy-sweep 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  will-change: transform;
+}
+
+@keyframes lx-energy-sweep {
+  from { transform: translateX(-110%); }
+  to   { transform: translateX(360%); }
+}
+
+/* ---------- Acessibilidade: movimento reduzido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .lx-bg-aurora,
+  .lx-core-glow,
+  .lx-orbit-track,
+  .lx-orbit-counter,
+  .lx-card-orbit,
+  .lx-foil-text,
+  .lx-energy-sweep {
+    animation: none !important;
+  }
+}

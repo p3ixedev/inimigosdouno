@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LoadingProvider } from './components/LoadingExperience';
+
 import Home from './pages/Home';
 import EscolherPerfil from './pages/EscolherPerfil';
 import Perfil from './pages/Perfil';
@@ -10,7 +12,11 @@ import Mesa from './pages/Mesa';
 
 function RotaProtegida({ children }) {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/entrar" replace />;
+
+  if (!user) {
+    return <Navigate to="/entrar" replace />;
+  }
+
   return children;
 }
 
@@ -18,6 +24,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/entrar" element={<EscolherPerfil />} />
+
       <Route
         path="/"
         element={
@@ -26,6 +33,7 @@ function AppRoutes() {
           </RotaProtegida>
         }
       />
+
       <Route
         path="/perfil"
         element={
@@ -34,6 +42,7 @@ function AppRoutes() {
           </RotaProtegida>
         }
       />
+
       <Route
         path="/jogo"
         element={
@@ -42,6 +51,7 @@ function AppRoutes() {
           </RotaProtegida>
         }
       />
+
       <Route
         path="/jogo/:codigo"
         element={
@@ -50,6 +60,7 @@ function AppRoutes() {
           </RotaProtegida>
         }
       />
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -60,7 +71,9 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <AuthProvider>
-          <AppRoutes />
+          <LoadingProvider>
+            <AppRoutes />
+          </LoadingProvider>
         </AuthProvider>
       </BrowserRouter>
     </div>
