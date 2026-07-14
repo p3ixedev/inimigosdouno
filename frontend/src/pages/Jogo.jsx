@@ -6,6 +6,7 @@ import {
   Copy, Check, Shield, Zap, Trophy, Radio,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLoadingExperience } from '../components/LoadingExperience';
 import { PLAYERS, COLOR_STYLES } from '../data/players';
 import UnoChip from '../components/UnoChip';
 import './Jogo.css';
@@ -38,6 +39,7 @@ async function apiEntrar(codigo, jogadorId, jogadorNome) {
  * ============================================================ */
 export default function Jogo() {
   const { user, logout } = useAuth();
+  const { withLoading } = useLoadingExperience();
   const navigate = useNavigate();
   const [codigo, setCodigo] = useState('');
   const [erro, setErro] = useState('');
@@ -84,7 +86,16 @@ export default function Jogo() {
     setErro('');
     setLoading(true);
     try {
-      const { codigo: cod } = await apiCriar(user.id, user.name);
+      const { codigo: cod } = await withLoading(
+        () => apiCriar(user.id, user.name),
+        {
+          tips: [
+            'Montando a mesa...',
+            'Embaralhando as cartas...',
+            'Preparando o lobby...',
+          ],
+        }
+      );
       navigate(`/jogo/${cod}`);
     } catch (e) {
       setErro(e.message);
@@ -98,7 +109,16 @@ export default function Jogo() {
     setErro('');
     setLoading(true);
     try {
-      await apiEntrar(codigo.trim().toUpperCase(), user.id, user.name);
+      await withLoading(
+        () => apiEntrar(codigo.trim().toUpperCase(), user.id, user.name),
+        {
+          tips: [
+            'Procurando a sala...',
+            'Conectando aos jogadores...',
+            'Preparando a partida...',
+          ],
+        }
+      );
       navigate(`/jogo/${codigo.trim().toUpperCase()}`);
     } catch (e) {
       setErro(e.message);

@@ -19,6 +19,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLoadingExperience } from '../components/LoadingExperience';
 import { PLAYERS, COLOR_STYLES } from '../data/players';
 import { getChannel } from '../api/pusher';
 import UnoChip from '../components/UnoChip';
@@ -284,6 +285,7 @@ async function apiGetSala(codigo) {
 export default function Mesa() {
   const { codigo } = useParams();
   const { user } = useAuth();
+  const { withLoading } = useLoadingExperience();
   const navigate = useNavigate();
 
   const [sala, setSala] = useState(null);
@@ -395,7 +397,20 @@ export default function Mesa() {
 
   async function iniciarJogo() {
     setErro('');
-    try { await apiAcao(codigo, user.id, 'iniciar'); } catch (e) { setErro(e.message); }
+    try {
+      await withLoading(
+        () => apiAcao(codigo, user.id, 'iniciar'),
+        {
+          tips: [
+            'Embaralhando...',
+            'Distribuindo cartas...',
+            'Escolhendo o primeiro jogador...',
+          ],
+        }
+      );
+    } catch (e) {
+      setErro(e.message);
+    }
   }
 
   async function declararUno() {

@@ -1,5 +1,5 @@
 // ============================================================
-// Home.jsx — REDESIGN "HUB CENTRAL" (pós-login)
+// Home.jsx - REDESIGN "HUB CENTRAL" (pós-login)
 //
 // IMPORTANTE: 100% da lógica original foi preservada:
 //  - Pusher (lobby-global / sala-criada), fetchMatches,
@@ -45,6 +45,7 @@ import {
   Medal,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLoadingExperience } from '../components/LoadingExperience';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Button } from '../components/ui/button';
@@ -135,6 +136,7 @@ function useIsDesktop() {
 export default function Home() {
   const isDesktop = useIsDesktop();
   const { user, logout } = useAuth();
+  const { withLoading } = useLoadingExperience();
   const navigate = useNavigate();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -226,7 +228,7 @@ export default function Home() {
     return matches.filter((m) => m.ts >= weekStart);
   }, [matches]);
 
-  // ===== PERFIL RÁPIDO — derivado apenas dos dados já carregados (visual) =====
+  // ===== PERFIL RÁPIDO - derivado apenas dos dados já carregados (visual) =====
   const myStats = useMemo(() => {
     if (!user) return null;
     const id = user.id;
@@ -255,6 +257,56 @@ export default function Home() {
     () => [...matches].sort((a, b) => b.ts - a.ts).slice(0, 3),
     [matches]
   );
+
+  // Transicoes com a experiencia de carregamento premium (nao altera nenhuma logica de dados,
+  // apenas envolve a navegacao com withLoading conforme documentado em COMO-USAR.md)
+  async function irCriarSala() {
+    await withLoading(
+      async () => {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        navigate('/jogo');
+      },
+      {
+        tips: [
+          'Montando a mesa...',
+          'Embaralhando as cartas...',
+          'Preparando o lobby...',
+        ],
+      }
+    );
+  }
+
+  async function irEntrarSala(destino = '/jogo') {
+    await withLoading(
+      async () => {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        navigate(destino);
+      },
+      {
+        tips: [
+          'Procurando a sala...',
+          'Conectando aos jogadores...',
+          'Preparando a partida...',
+        ],
+      }
+    );
+  }
+
+  async function irPerfil() {
+    await withLoading(
+      async () => {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        navigate('/perfil');
+      },
+      {
+        tips: [
+          'Consultando estatisticas...',
+          'Calculando vitorias...',
+          'Carregando perfil...',
+        ],
+      }
+    );
+  }
 
   const togglePlayed = (id) => {
     setSelectedPlayed((prev) => {
@@ -356,7 +408,7 @@ export default function Home() {
 
                 <div className="flex flex-shrink-0 items-center gap-2 sm:ml-auto">
                   <button
-                    onClick={() => navigate(`/jogo/${notificacaoSala.codigo}`)}
+                    onClick={() => irEntrarSala(`/jogo/${notificacaoSala.codigo}`)}
                     className="flex-1 rounded-2xl bg-white px-5 py-2.5 text-xs font-black uppercase tracking-wider text-[oklch(0.63_0.24_27)] shadow-lg transition hover:bg-white/90 sm:flex-none sm:text-sm"
                   >
                     Entrar
@@ -392,7 +444,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => navigate('/perfil')}
+                onClick={irPerfil}
                 className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-white/10 hover:text-white"
               >
                 <User className="h-3.5 w-3.5" />
@@ -446,12 +498,12 @@ export default function Home() {
             </motion.h1>
             <p className="mt-2 text-xs text-zinc-400 sm:mt-3 sm:text-sm">O Grupo dos Impossíveis</p>
 
-            {/* CTA principal — o coração do launcher */}
+            {/* CTA principal - o coração do launcher */}
             <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-9">
               <motion.button
                 whileHover={isDesktop ? { y: -3, scale: 1.02 } : {}}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => navigate('/jogo')}
+                onClick={irCriarSala}
                 className="group relative flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-[oklch(0.63_0.24_27)] to-[oklch(0.56_0.22_27)] px-7 py-4 text-sm font-black uppercase tracking-widest text-white shadow-[0_18px_45px_-12px_oklch(0.63_0.24_27/0.75)] ring-1 ring-white/20 transition sm:px-9 sm:py-5 sm:text-base"
               >
                 <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -518,7 +570,7 @@ export default function Home() {
             kicker="Anfitrião"
             title="Criar Sala"
             desc="Abra uma mesa e convide o grupo com um código."
-            onClick={() => navigate('/jogo')}
+            onClick={irCriarSala}
           />
           <ActionCard
             delay={0.25}
@@ -528,7 +580,7 @@ export default function Home() {
             kicker="Convidado"
             title="Entrar em Sala"
             desc="Recebeu um código? Entre direto na mesa."
-            onClick={() => navigate('/jogo')}
+            onClick={() => irEntrarSala('/jogo')}
           />
           <ActionCard
             delay={0.35}
@@ -538,7 +590,7 @@ export default function Home() {
             kicker="Sua conta"
             title="Meu Perfil"
             desc="Estatísticas completas, duelos e histórico."
-            onClick={() => navigate('/perfil')}
+            onClick={irPerfil}
           />
         </div>
 
@@ -607,7 +659,7 @@ export default function Home() {
               )}
 
               <button
-                onClick={() => navigate('/perfil')}
+                onClick={irPerfil}
                 className="group relative mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.05] px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white"
               >
                 Ver perfil completo
@@ -1093,7 +1145,7 @@ function StatTile({ label, value, icon, delay = 0, accent = 'amarelo' }) {
   );
 }
 
-// Card de ação rápida do hub — profundidade, glow na cor e hover elegante
+// Card de ação rápida do hub - profundidade, glow na cor e hover elegante
 function ActionCard({ icon, tint, kicker, title, desc, onClick, delay = 0, isDesktop = true }) {
   return (
     <motion.button

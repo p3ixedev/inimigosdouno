@@ -30,18 +30,29 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLoadingExperience } from '../components/LoadingExperience';
 import { fetchMatches } from '../api/matches';
 import { PLAYERS, COLOR_STYLES, startOfWeek } from '../data/players';
 import UnoChip from '../components/UnoChip';
 
 export default function Perfil() {
   const { user, logout } = useAuth();
+  const { withLoading } = useLoadingExperience();
   const navigate = useNavigate();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchMatches()
+    withLoading(
+      () => fetchMatches(),
+      {
+        tips: [
+          'Consultando estatisticas...',
+          'Calculando vitorias...',
+          'Carregando perfil...',
+        ],
+      }
+    )
       .then(setMatches)
       .finally(() => setLoading(false));
   }, []);
@@ -104,7 +115,7 @@ export default function Perfil() {
     : 0;
   const derrotas = stats ? stats.totalPartidas - stats.totalVitorias : 0;
 
-  // Título/rank simbólico baseado em vitórias — puramente visual, sem efeito no backend
+  // Título/rank simbólico baseado em vitórias - puramente visual, sem efeito no backend
   const rankLabel =
     !stats ? 'Jogador' :
     stats.totalVitorias >= 30 ? 'Lenda da Mesa' :
@@ -115,7 +126,7 @@ export default function Perfil() {
 
   return (
     <div className="uno-bg relative min-h-screen">
-      {/* Halos de fundo — mesma linguagem do lobby / mesa */}
+      {/* Halos de fundo - mesma linguagem do lobby / mesa */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <div
           className="absolute -top-40 -right-40 h-[28rem] w-[28rem] rounded-full blur-3xl"
@@ -140,7 +151,7 @@ export default function Perfil() {
             Início
           </button>
           <button
-            onClick={() => { logout(); navigate('/login'); }}
+            onClick={() => { logout(); navigate('/entrar'); }}
             className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-[oklch(0.63_0.24_27)]/20 hover:text-[oklch(0.82_0.18_27)] hover:ring-[oklch(0.63_0.24_27)]/40"
           >
             <LogOut className="h-3.5 w-3.5" />
@@ -148,7 +159,7 @@ export default function Perfil() {
           </button>
         </motion.div>
 
-        {/* HERO — avatar em destaque, nome com foil, taxa de vitória */}
+        {/* HERO - avatar em destaque, nome com foil, taxa de vitória */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
