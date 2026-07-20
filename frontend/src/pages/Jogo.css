@@ -123,8 +123,6 @@
   border-radius: 999px;
   background: oklch(1 0 0 / 0.04);
   border: 1px solid oklch(1 0 0 / 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -164,8 +162,6 @@
     border-color 220ms ease,
     color 220ms ease,
     transform 220ms ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .lobby-chip:hover {
@@ -214,8 +210,6 @@
   box-shadow:
     0 20px 60px -20px oklch(0 0 0 / 0.6),
     inset 0 1px 0 oklch(1 0 0 / 0.06);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   overflow: hidden;
 }
 
@@ -458,8 +452,6 @@
   box-shadow:
     0 20px 50px -25px oklch(0 0 0 / 0.7),
     inset 0 1px 0 oklch(1 0 0 / 0.06);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   cursor: pointer;
   overflow: hidden;
   transition:
@@ -854,8 +846,6 @@
   color: oklch(0.9 0.15 27);
   font-size: 13px;
   font-weight: 500;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 10px 30px -10px oklch(0.63 0.24 27 / 0.35);
 }
 
@@ -897,8 +887,6 @@
   border-radius: 16px;
   background: oklch(0.2 0.03 265 / 0.55);
   border: 1px solid oklch(1 0 0 / 0.06);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   transition:
     background 220ms ease,
     border-color 220ms ease,
@@ -1089,5 +1077,33 @@
   .lobby-profile__status-dot,
   .lobby-card__tag-dot {
     animation: none;
+  }
+}
+
+/* Blur pesado (glassmorphism) so em telas grandes - no celular fica sem, para nao travar o scroll */
+@media (min-width: 1024px) {
+  .lobby-brand {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .lobby-chip {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .lobby-profile {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .lobby-card {
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .lobby-error {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .lobby-player {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 }

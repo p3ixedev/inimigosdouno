@@ -443,14 +443,14 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <button
                 onClick={irPerfil}
-                className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-white/10 hover:text-white"
+                className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 lg:backdrop-blur-sm transition hover:bg-white/10 hover:text-white"
               >
                 <User className="h-3.5 w-3.5" />
                 <span translate="no">{user.name}</span>
               </button>
               <button
                 onClick={() => { logout(); navigate('/entrar'); }}
-                className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-[oklch(0.63_0.24_27)]/20 hover:text-[oklch(0.82_0.18_27)] hover:ring-[oklch(0.63_0.24_27)]/40"
+                className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 lg:backdrop-blur-sm transition hover:bg-[oklch(0.63_0.24_27)]/20 hover:text-[oklch(0.82_0.18_27)] hover:ring-[oklch(0.63_0.24_27)]/40"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 Sair
@@ -515,7 +515,7 @@ export default function Home() {
                 whileHover={isDesktop ? { y: -2 } : {}}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => scrollTo('registrar')}
-                className="flex items-center gap-2 rounded-2xl bg-white/[0.05] px-5 py-4 text-xs font-bold uppercase tracking-widest text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-white/10 hover:text-white sm:px-6 sm:py-5 sm:text-sm"
+                className="flex items-center gap-2 rounded-2xl bg-white/[0.05] px-5 py-4 text-xs font-bold uppercase tracking-widest text-zinc-300 ring-1 ring-white/10 lg:backdrop-blur-sm transition hover:bg-white/10 hover:text-white sm:px-6 sm:py-5 sm:text-sm"
               >
                 <Trophy className="h-4 w-4 text-[oklch(0.86_0.17_85)]" />
                 Registrar Vitória
@@ -1093,7 +1093,7 @@ function StatTile({ label, value, icon, delay = 0, accent = 'amarelo' }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
       whileHover={{ y: -3 }}
-      className="group relative overflow-hidden rounded-2xl bg-white/[0.04] p-3 pl-4 ring-1 ring-white/10 backdrop-blur transition-colors hover:bg-white/[0.06] sm:p-4 sm:pl-5"
+      className="group relative overflow-hidden rounded-2xl bg-white/[0.04] p-3 pl-4 ring-1 ring-white/10 lg:backdrop-blur transition-colors hover:bg-white/[0.06] sm:p-4 sm:pl-5"
     >
       <span className={`absolute left-0 top-0 h-full w-[3px] ${a.bar} opacity-70`} />
       <p className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-widest text-zinc-400 sm:text-[10px]">

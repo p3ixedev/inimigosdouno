@@ -147,14 +147,14 @@ export default function Perfil() {
         >
           <button
             onClick={() => navigate('/')}
-            className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-white/10 hover:text-white"
+            className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 lg:backdrop-blur-sm transition hover:bg-white/10 hover:text-white"
           >
             <Home className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
             Início
           </button>
           <button
             onClick={() => { logout(); navigate('/entrar'); }}
-            className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-[oklch(0.63_0.24_27)]/20 hover:text-[oklch(0.82_0.18_27)] hover:ring-[oklch(0.63_0.24_27)]/40"
+            className="group flex items-center gap-2 rounded-full bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-white/10 lg:backdrop-blur-sm transition hover:bg-[oklch(0.63_0.24_27)]/20 hover:text-[oklch(0.82_0.18_27)] hover:ring-[oklch(0.63_0.24_27)]/40"
           >
             <LogOut className="h-3.5 w-3.5" />
             Sair

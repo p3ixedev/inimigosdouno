@@ -77,7 +77,7 @@ export default function EscolherPerfil() {
         transition={{ duration: 0.75, ease: EASE_PREMIUM }}
         className="relative z-10 w-full max-w-md"
       >
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-white/[0.03] px-7 py-9 shadow-[0_40px_100px_-24px_rgba(0,0,0,0.85)] backdrop-blur-2xl sm:px-10 sm:py-11">
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-white/[0.03] px-7 py-9 shadow-[0_40px_100px_-24px_rgba(0,0,0,0.85)] lg:backdrop-blur-2xl sm:px-10 sm:py-11">
           <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
           <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-[oklch(0.63_0.24_27)]/10 blur-3xl" />
 
