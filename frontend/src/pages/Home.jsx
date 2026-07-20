@@ -36,8 +36,6 @@ import {
   X,
   Gamepad2,
   Play,
-  Plus,
-  KeyRound,
   ArrowRight,
   Sparkles,
   Target,
@@ -510,7 +508,7 @@ export default function Home() {
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15 sm:h-9 sm:w-9">
                   <Play className="h-4 w-4 fill-current sm:h-5 sm:w-5" />
                 </span>
-                Jogar Agora
+                Jogar
               </motion.button>
 
               <motion.button
@@ -559,40 +557,6 @@ export default function Home() {
             </div>
           </div>
         </motion.header>
-
-        {/* ===== AÇÕES RÁPIDAS ===== */}
-        <div className="mb-8 grid grid-cols-1 gap-3 sm:mb-10 sm:grid-cols-3 sm:gap-4">
-          <ActionCard
-            delay={0.15}
-            isDesktop={isDesktop}
-            icon={<Plus className="h-5 w-5" strokeWidth={2.5} />}
-            tint="oklch(0.63 0.24 27)"
-            kicker="Anfitrião"
-            title="Criar Sala"
-            desc="Abra uma mesa e convide o grupo com um código."
-            onClick={irCriarSala}
-          />
-          <ActionCard
-            delay={0.25}
-            isDesktop={isDesktop}
-            icon={<KeyRound className="h-5 w-5" strokeWidth={2.5} />}
-            tint="oklch(0.6 0.22 255)"
-            kicker="Convidado"
-            title="Entrar em Sala"
-            desc="Recebeu um código? Entre direto na mesa."
-            onClick={() => irEntrarSala('/jogo')}
-          />
-          <ActionCard
-            delay={0.35}
-            isDesktop={isDesktop}
-            icon={<User className="h-5 w-5" strokeWidth={2.5} />}
-            tint="oklch(0.86 0.17 85)"
-            kicker="Sua conta"
-            title="Meu Perfil"
-            desc="Estatísticas completas, duelos e histórico."
-            onClick={irPerfil}
-          />
-        </div>
 
         {/* ===== PAINEL DO HUB: PERFIL RÁPIDO / RANKING / ATIVIDADE ===== */}
         <div className="mb-4 grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3">
@@ -1142,41 +1106,6 @@ function StatTile({ label, value, icon, delay = 0, accent = 'amarelo' }) {
       </p>
       <p className="mt-1.5 truncate font-display text-xl leading-none sm:text-2xl" translate="no">{value}</p>
     </motion.div>
-  );
-}
-
-// Card de ação rápida do hub - profundidade, glow na cor e hover elegante
-function ActionCard({ icon, tint, kicker, title, desc, onClick, delay = 0, isDesktop = true }) {
-  return (
-    <motion.button
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={isDesktop ? { y: -5 } : {}}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className="group relative overflow-hidden rounded-3xl uno-card-surface p-5 text-left transition sm:p-6"
-    >
-      <div
-        className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-25"
-        style={{ background: tint }}
-      />
-      <div className="flex items-start justify-between">
-        <div
-          className="flex h-11 w-11 items-center justify-center rounded-2xl text-white ring-1 ring-white/15 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
-          style={{
-            background: `linear-gradient(140deg, ${tint}, color-mix(in oklab, ${tint} 60%, black))`,
-            boxShadow: `0 10px 26px -10px ${tint}`,
-          }}
-        >
-          {icon}
-        </div>
-        <ArrowRight className="h-4 w-4 text-zinc-600 transition-all duration-300 group-hover:translate-x-1 group-hover:text-zinc-300" />
-      </div>
-      <p className="mt-4 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-500">{kicker}</p>
-      <h3 className="mt-1 font-display text-2xl leading-none sm:text-3xl">{title}</h3>
-      <p className="mt-1.5 text-xs leading-relaxed text-zinc-400 sm:text-sm">{desc}</p>
-    </motion.button>
   );
 }
 
