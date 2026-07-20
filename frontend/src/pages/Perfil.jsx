@@ -55,6 +55,8 @@ export default function Perfil() {
     )
       .then(setMatches)
       .finally(() => setLoading(false));
+    // Ignora o aviso do ESLint: withLoading nao precisa estar nas dependencias aqui
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const stats = useMemo(() => {
