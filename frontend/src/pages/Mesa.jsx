@@ -32,16 +32,16 @@ const CORES_UNO = ['vermelho', 'azul', 'verde', 'amarelo'];
 const COR_LABEL = { vermelho: 'Vermelho', azul: 'Azul', verde: 'Verde', amarelo: 'Amarelo' };
 
 const FRASES = [
-  "Nem minha vo jogava assim",
+  "Nem minha vó jogava assim",
   "Continua assim...",
   "Desiste logo",
-  "To sendo roubado",
-  "Impossivel isso",
+  "Tô sendo roubado",
+  "Impossível isso",
   "Pega +4 idiota",
-  "Voce e uma vergonha",
-  "Ate meu cachorro joga melhor",
+  "Você é uma vergonha",
+  "Até meu cachorro joga melhor",
   "Obrigado pelo +4",
-  "To gostando desse baralho",
+  "Tô gostando desse baralho",
 ];
 
 const COR = {
