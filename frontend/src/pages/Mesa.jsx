@@ -21,6 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useLoadingExperience } from '../components/LoadingExperience';
 import { PLAYERS, COLOR_STYLES } from '../data/players';
+import { VERSO_CARTA, getImagemFrenteCarta } from '../data/cartaImagens';
 import { getChannel } from '../api/pusher';
 import UnoChip from '../components/UnoChip';
 import { Crown, Home, RotateCcw, ChevronRight, Copy, Check, Trophy, LogOut, MessageCircle, X } from 'lucide-react';
@@ -112,11 +113,27 @@ function getIconCarta(carta) {
   return null;
 }
 
+// Checa uma vez se a imagem existe, sem quebrar nada se faltar
+function useImagemOk(src) {
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    if (!src) return;
+    let ativo = true;
+    const img = new window.Image();
+    img.onload = () => { if (ativo) setOk(true); };
+    img.onerror = () => { if (ativo) setOk(false); };
+    img.src = src;
+    return () => { ativo = false; };
+  }, [src]);
+  return ok;
+}
+
 // ------------------------------------------------------------
 // Carta na mao do jogador
 // Mesmo layoutId que a carta topo - permite "voo" contínuo.
 // ------------------------------------------------------------
 function CartaMao({ carta, selecionada, onClick, disabled }) {
+  const [imgOk, setImgOk] = useState(true);
   const isEspecial = carta.tipo === 'especial';
   const isDestaque = carta.tipo === 'acao' || carta.tipo === 'especial';
   const corObj = carta.cor ? COR[carta.cor] : null;
@@ -125,6 +142,7 @@ function CartaMao({ carta, selecionada, onClick, disabled }) {
   const icon = getIconCarta(carta);
   const gradFrom = corObj ? corObj.from : 'oklch(0.32 0.01 260)';
   const gradTo = corObj ? corObj.to : 'oklch(0.14 0.005 260)';
+  const imgSrc = getImagemFrenteCarta(carta);
 
   return (
     <motion.button
@@ -141,37 +159,50 @@ function CartaMao({ carta, selecionada, onClick, disabled }) {
       className={`mesa-card mesa-card-sheen flex-shrink-0 select-none w-[52px] h-[76px] sm:w-[62px] sm:h-[92px] ${selecionada ? 'is-selected' : ''} ${disabled ? 'is-disabled cursor-not-allowed' : 'cursor-pointer'}`}
       style={{ '--card-from': gradFrom, '--card-to': gradTo }}
     >
-      <span className="mesa-card-oval" />
-      {isDestaque && (
-        <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-white/80 z-10" />
+      {imgOk && imgSrc && (
+        <img
+          src={imgSrc}
+          alt={label}
+          draggable={false}
+          className="mesa-card-img"
+          onError={() => setImgOk(false)}
+        />
       )}
-      <div className="absolute top-1 left-1.5 text-white font-black leading-none z-10"
-           style={{ fontSize: '10px', textShadow: '0 1px 3px rgba(0,0,0,0.55)' }}>
-        {label}
-      </div>
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-2 z-10">
-        {icon ? (
-          <span className="text-white block w-7 h-7 sm:w-8 sm:h-8"
-                style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.55))' }}>
-            {icon}
-          </span>
-        ) : (
-          <span className="text-white font-black leading-none"
-                style={{ fontSize: isEspecial ? '20px' : '26px', textShadow: '0 2px 6px rgba(0,0,0,0.55)' }}>
+      {(!imgOk || !imgSrc) && (
+        <>
+          <span className="mesa-card-oval" />
+          {isDestaque && (
+            <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-white/80 z-10" />
+          )}
+          <div className="absolute top-1 left-1.5 text-white font-black leading-none z-10"
+               style={{ fontSize: '10px', textShadow: '0 1px 3px rgba(0,0,0,0.55)' }}>
             {label}
-          </span>
-        )}
-        {sub && (
-          <span className="mt-0.5 text-white/55 font-bold"
-                style={{ fontSize: '5.5px', letterSpacing: '0.1em' }}>
-            {sub}
-          </span>
-        )}
-      </div>
-      <div className="absolute bottom-1 right-1.5 text-white font-black leading-none rotate-180 z-10"
-           style={{ fontSize: '10px', textShadow: '0 1px 3px rgba(0,0,0,0.55)' }}>
-        {label}
-      </div>
+          </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-2 z-10">
+            {icon ? (
+              <span className="text-white block w-7 h-7 sm:w-8 sm:h-8"
+                    style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.55))' }}>
+                {icon}
+              </span>
+            ) : (
+              <span className="text-white font-black leading-none"
+                    style={{ fontSize: isEspecial ? '20px' : '26px', textShadow: '0 2px 6px rgba(0,0,0,0.55)' }}>
+                {label}
+              </span>
+            )}
+            {sub && (
+              <span className="mt-0.5 text-white/55 font-bold"
+                    style={{ fontSize: '5.5px', letterSpacing: '0.1em' }}>
+                {sub}
+              </span>
+            )}
+          </div>
+          <div className="absolute bottom-1 right-1.5 text-white font-black leading-none rotate-180 z-10"
+               style={{ fontSize: '10px', textShadow: '0 1px 3px rgba(0,0,0,0.55)' }}>
+            {label}
+          </div>
+        </>
+      )}
     </motion.button>
   );
 }
@@ -180,6 +211,7 @@ function CartaMao({ carta, selecionada, onClick, disabled }) {
 // Carta no topo da pilha
 // ------------------------------------------------------------
 function CartaTopo({ carta, corAtual }) {
+  const [imgOk, setImgOk] = useState(true);
   if (!carta) return null;
   const corObj = carta.cor ? COR[carta.cor] : (corAtual ? COR[corAtual] : null);
   const label = getLabelCarta(carta);
@@ -187,6 +219,7 @@ function CartaTopo({ carta, corAtual }) {
   const icon = getIconCarta(carta);
   const gradFrom = corObj ? corObj.from : 'oklch(0.4 0.01 260)';
   const gradTo = corObj ? corObj.to : 'oklch(0.16 0.005 260)';
+  const imgSrc = getImagemFrenteCarta(carta);
 
   return (
     <motion.div
@@ -199,48 +232,65 @@ function CartaTopo({ carta, corAtual }) {
       className="mesa-card mesa-card-lg mesa-card-sheen relative w-[96px] h-[136px] sm:w-[112px] sm:h-[158px]"
       style={{ '--card-from': gradFrom, '--card-to': gradTo }}
     >
-      <span className="mesa-card-oval" />
-      <div className="absolute top-1.5 left-2 text-white font-black leading-none z-10"
-           style={{ fontSize: '12px', textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
-        {label}
-      </div>
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-3 z-10">
-        {icon ? (
-          <span className="text-white block w-12 h-12 sm:w-14 sm:h-14"
-                style={{ filter: 'drop-shadow(0 3px 8px rgba(0,0,0,0.65))' }}>
-            {icon}
-          </span>
-        ) : (
-          <span className="text-white font-black leading-none"
-                style={{ fontSize: '42px', textShadow: '0 3px 10px rgba(0,0,0,0.65)' }}>
+      {imgOk && imgSrc && (
+        <img
+          src={imgSrc}
+          alt={label}
+          draggable={false}
+          className="mesa-card-img"
+          onError={() => setImgOk(false)}
+        />
+      )}
+      {(!imgOk || !imgSrc) && (
+        <>
+          <span className="mesa-card-oval" />
+          <div className="absolute top-1.5 left-2 text-white font-black leading-none z-10"
+               style={{ fontSize: '12px', textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
             {label}
-          </span>
-        )}
-        {sub && (
-          <span className="mt-1 text-white/60 font-bold"
-                style={{ fontSize: '9px', letterSpacing: '0.12em' }}>
-            {sub}
-          </span>
-        )}
-      </div>
-      <div className="absolute bottom-1.5 right-2 text-white font-black leading-none rotate-180 z-10"
-           style={{ fontSize: '12px', textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
-        {label}
-      </div>
+          </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-3 z-10">
+            {icon ? (
+              <span className="text-white block w-12 h-12 sm:w-14 sm:h-14"
+                    style={{ filter: 'drop-shadow(0 3px 8px rgba(0,0,0,0.65))' }}>
+                {icon}
+              </span>
+            ) : (
+              <span className="text-white font-black leading-none"
+                    style={{ fontSize: '42px', textShadow: '0 3px 10px rgba(0,0,0,0.65)' }}>
+                {label}
+              </span>
+            )}
+            {sub && (
+              <span className="mt-1 text-white/60 font-bold"
+                    style={{ fontSize: '9px', letterSpacing: '0.12em' }}>
+                {sub}
+              </span>
+            )}
+          </div>
+          <div className="absolute bottom-1.5 right-2 text-white font-black leading-none rotate-180 z-10"
+               style={{ fontSize: '12px', textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
+            {label}
+          </div>
+        </>
+      )}
     </motion.div>
   );
 }
 
 // Miniatura empilhada de mão de adversário
 function MaoMini({ count }) {
+  const versoOk = useImagemOk(VERSO_CARTA);
   const visiveis = Math.min(count, 7);
   return (
     <div className="mesa-mini-backs">
       {Array.from({ length: visiveis }).map((_, i) => (
         <span
           key={i}
-          className="mesa-mini-back"
-          style={{ transform: `translateY(${(i % 2) * -1}px) rotate(${(i - visiveis / 2) * 3}deg)` }}
+          className={`mesa-mini-back ${versoOk ? 'tem-imagem-verso' : ''}`}
+          style={{
+            transform: `translateY(${(i % 2) * -1}px) rotate(${(i - visiveis / 2) * 3}deg)`,
+            ...(versoOk ? { backgroundImage: `url(${VERSO_CARTA})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}),
+          }}
         />
       ))}
       {count > visiveis && (
@@ -287,6 +337,7 @@ export default function Mesa() {
   const { user } = useAuth();
   const { withLoading } = useLoadingExperience();
   const navigate = useNavigate();
+  const versoOk = useImagemOk(VERSO_CARTA);
 
   const [sala, setSala] = useState(null);
   const [estado, setEstado] = useState(null);
@@ -1046,11 +1097,13 @@ export default function Mesa() {
                 style={{ background: 'transparent', border: 0, padding: 0 }}
               >
                 <div className="mesa-deck">
-                  <div className="mesa-card-back mesa-card-back-lg" />
-                  <div className="mesa-card-back mesa-card-back-lg" />
-                  <div className="mesa-card-back mesa-card-back-lg" />
-                  <div className="mesa-card-back mesa-card-back-lg" />
-                  <div className="mesa-card-back mesa-card-back-lg" />
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`mesa-card-back mesa-card-back-lg ${versoOk ? 'tem-imagem-verso' : ''}`}
+                      style={versoOk ? { backgroundImage: `url(${VERSO_CARTA})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+                    />
+                  ))}
                   {estado.acumulado > 0 && (
                     <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="mesa-deck-badge">
                       +{estado.acumulado}

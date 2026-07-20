@@ -209,6 +209,27 @@
   filter: saturate(0.55) brightness(0.75);
 }
 
+/* Imagem de frente da carta - preenche o card inteiro, cantos
+   arredondados iguais ao card, por cima do gradiente de fundo */
+.mesa-card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Quando o verso customizado existe, esconde o oval/UNO desenhados
+   em CSS - a imagem ja traz a arte completa */
+.tem-imagem-verso::before,
+.tem-imagem-verso::after {
+  display: none;
+}
+
 /* Verso de carta - padrão UNO estilizado */
 .mesa-card-back {
   background:
