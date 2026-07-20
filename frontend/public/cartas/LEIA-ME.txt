@@ -1,0 +1,24 @@
+Coloque aqui as imagens das cartas. Nomes esperados (minusculo, sem acento):
+
+VERSO (uma imagem so, usada em toda carta virada pra baixo):
+  verso.png
+
+NUMEROS (0 a 9), por cor:
+  vermelho-0.png ... vermelho-9.png
+  azul-0.png     ... azul-9.png
+  verde-0.png    ... verde-9.png
+  amarelo-0.png  ... amarelo-9.png
+
+ACOES, por cor:
+  vermelho-bloqueio.png
+  vermelho-reverso.png
+  vermelho-mais2.png
+  (troque vermelho por azul / verde / amarelo)
+
+ESPECIAIS (sem cor):
+  mais4.png
+  coringa.png
+
+Se faltar algum arquivo, aquela carta especifica continua com o
+visual atual (gradiente + numero) ate voce adicionar a imagem.
+Formato recomendado: PNG ou JPG, proporcao retrato (ex: 240x340px).

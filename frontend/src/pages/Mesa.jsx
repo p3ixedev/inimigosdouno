@@ -16,6 +16,7 @@
 // ============================================================
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -916,82 +917,90 @@ export default function Mesa() {
           )}
         </AnimatePresence>
 
-        {/* Botão chat flutuante */}
-        <div className="fixed bottom-40 right-3 z-30 sm:bottom-44 sm:right-4">
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            onClick={() => setChatAberto((v) => !v)}
-            className="w-11 h-11 rounded-2xl flex items-center justify-center text-zinc-200 transition"
-            style={{
-              background: 'linear-gradient(160deg, oklch(0.16 0.008 260 / 0.9), oklch(0.09 0.005 260 / 0.95))',
-              border: '1px solid oklch(1 0 0 / 0.08)',
-              boxShadow: '0 10px 24px -10px oklch(0 0 0 / 0.7)',
-            }}
-          >
-            {chatAberto ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
-          </motion.button>
-        </div>
-
-        {/* Mensagens recentes */}
-        <div className="fixed bottom-52 left-2 right-16 z-20 pointer-events-none sm:left-4 sm:right-auto sm:w-64">
-          <AnimatePresence>
-            {mensagens.slice(-3).map((m) => (
-              <motion.div
-                key={m.ts}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="mesa-surface-flat mb-1 px-3 py-2"
-                style={{ backdropFilter: 'blur(8px)' }}
+        {/* Chat flutuante - renderizado via Portal direto no body, para o
+            position:fixed nao ficar preso dentro do motion.div da pagina */}
+        {createPortal(
+          <>
+            {/* Botão chat flutuante */}
+            <div className="fixed bottom-40 right-3 z-30 sm:bottom-44 sm:right-4">
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={() => setChatAberto((v) => !v)}
+                className="w-11 h-11 rounded-2xl flex items-center justify-center text-zinc-200 transition"
+                style={{
+                  background: 'linear-gradient(160deg, oklch(0.16 0.008 260 / 0.9), oklch(0.09 0.005 260 / 0.95))',
+                  border: '1px solid oklch(1 0 0 / 0.08)',
+                  boxShadow: '0 10px 24px -10px oklch(0 0 0 / 0.7)',
+                }}
               >
-                <span className="text-[10px] font-bold text-zinc-400" translate="no">{m.nome}: </span>
-                <span className="text-xs text-white">{m.texto}</span>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+                {chatAberto ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
+              </motion.button>
+            </div>
 
-        {/* Painel de frases */}
-        <AnimatePresence>
-          {chatAberto && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="mesa-surface fixed bottom-52 right-3 z-30 w-64 p-3 sm:right-4"
-            >
-              <p className="mesa-eyebrow mb-2 px-1">Chat ao vivo</p>
-              <div className="flex gap-1.5 mb-3">
-                <input
-                  type="text"
-                  value={textoChat}
-                  onChange={(e) => setTextoChat(e.target.value.slice(0, 100))}
-                  onKeyDown={(e) => e.key === 'Enter' && enviarTexto()}
-                  placeholder="Digite uma mensagem..."
-                  className="flex-1 bg-black/40 border border-white/8 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-[oklch(0.9_0.16_85)] transition [color-scheme:dark]"
-                />
-                <button onClick={enviarTexto} disabled={!textoChat.trim()} className="mesa-btn mesa-btn-primary mesa-btn-sm">
-                  Enviar
-                </button>
-              </div>
-              <p className="mesa-eyebrow mb-2 px-1">Frases rapidas</p>
-              <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
-                {FRASES.map((frase) => (
-                  <button
-                    key={frase}
-                    onClick={() => enviarFrase(frase)}
-                    className="mesa-surface-flat w-full text-left text-xs text-zinc-200 px-3 py-2 hover:bg-white/[0.04] transition"
+            {/* Mensagens recentes */}
+            <div className="fixed bottom-52 left-2 right-16 z-20 pointer-events-none sm:left-4 sm:right-auto sm:w-64">
+              <AnimatePresence>
+                {mensagens.slice(-3).map((m) => (
+                  <motion.div
+                    key={m.ts}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="mesa-surface-flat mb-1 px-3 py-2"
+                    style={{ backdropFilter: 'blur(8px)' }}
                   >
-                    {frase}
-                  </button>
+                    <span className="text-[10px] font-bold text-zinc-400" translate="no">{m.nome}: </span>
+                    <span className="text-xs text-white">{m.texto}</span>
+                  </motion.div>
                 ))}
-              </div>
-              <button onClick={() => setChatAberto(false)} className="mt-3 w-full text-xs text-zinc-500 hover:text-zinc-300 transition">
-                Fechar
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </AnimatePresence>
+            </div>
+
+            {/* Painel de frases */}
+            <AnimatePresence>
+              {chatAberto && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="mesa-surface fixed bottom-52 right-3 z-30 w-64 p-3 sm:right-4"
+                >
+                  <p className="mesa-eyebrow mb-2 px-1">Chat ao vivo</p>
+                  <div className="flex gap-1.5 mb-3">
+                    <input
+                      type="text"
+                      value={textoChat}
+                      onChange={(e) => setTextoChat(e.target.value.slice(0, 100))}
+                      onKeyDown={(e) => e.key === 'Enter' && enviarTexto()}
+                      placeholder="Digite uma mensagem..."
+                      className="flex-1 bg-black/40 border border-white/8 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-[oklch(0.9_0.16_85)] transition [color-scheme:dark]"
+                    />
+                    <button onClick={enviarTexto} disabled={!textoChat.trim()} className="mesa-btn mesa-btn-primary mesa-btn-sm">
+                      Enviar
+                    </button>
+                  </div>
+                  <p className="mesa-eyebrow mb-2 px-1">Frases rapidas</p>
+                  <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                    {FRASES.map((frase) => (
+                      <button
+                        key={frase}
+                        onClick={() => enviarFrase(frase)}
+                        className="mesa-surface-flat w-full text-left text-xs text-zinc-200 px-3 py-2 hover:bg-white/[0.04] transition"
+                      >
+                        {frase}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={() => setChatAberto(false)} className="mt-3 w-full text-xs text-zinc-500 hover:text-zinc-300 transition">
+                    Fechar
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>,
+          document.body
+        )}
+
 
         {/* HUD: código + sair */}
         <div className="relative z-20 flex items-center justify-between px-3 pt-3 sm:px-5 sm:pt-4">

@@ -442,7 +442,9 @@ export default function Jogo() {
                       {isYou ? 'Você' : 'Membro'}
                     </p>
                   </div>
-                  <span className={`lobby-player__dot lobby-player__dot--${p.color}`} />
+                  {p.color !== 'white' && p.color !== 'branco' && (
+                    <span className={`lobby-player__dot lobby-player__dot--${p.color}`} />
+                  )}
                 </motion.div>
               );
             })}
